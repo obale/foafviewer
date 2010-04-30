@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings">FOAFSettings</string>
+    <string name="foaf_map">FOAFMap</string>
+    <string name="app_name">FOAFViewer</string>
+</resources>
