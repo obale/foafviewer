@@ -11,6 +11,13 @@
     	android:layout_height="wrap_content" 
     	android:text="Show Me on Map!"
     />
+    
+    <Button  
+    	android:id="@+id/listFriendsButton"
+    	android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content" 
+    	android:text="List your Friens!"
+    />
 
 
 </LinearLayout>

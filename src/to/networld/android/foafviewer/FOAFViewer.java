@@ -3,13 +3,11 @@ package to.networld.android.foafviewer;
 import java.net.URL;
 
 import to.networld.android.foafviewer.model.Agent;
-import to.networld.android.foafviewer.model.StringSerializable;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +27,12 @@ public class FOAFViewer extends Activity {
 			mapMe();
 		}
 	};
+	
+	private OnClickListener listFriendsButtonListener = new OnClickListener() {
+		public void onClick(View view) {
+			listFriends();
+		}
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,10 @@ public class FOAFViewer extends Activity {
 		Button mapMeButton = (Button) findViewById(R.id.mapMeButton);
 		if (mapMeButton != null)
 			mapMeButton.setOnClickListener(this.mapMeButtonListener);
+		
+		Button listFriendsButton = (Button) findViewById(R.id.listFriendsButton);
+		if (listFriendsButton != null)
+			listFriendsButton.setOnClickListener(this.listFriendsButtonListener);
 	}
 
 	@Override
@@ -51,25 +59,22 @@ public class FOAFViewer extends Activity {
 	 * Show you on map!
 	 */
 	public void mapMe() {
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		try {
 			Agent foafAgent = new Agent(new URL(settings.getString("FOAF", "")));
-			Pair<Double, Double> location = foafAgent.getLocation();
 			Intent mapIntent = new Intent(FOAFViewer.this, FOAFMap.class);
-			mapIntent.putExtra("latitude", location.first);
-			mapIntent.putExtra("longitude", location.second);
-			mapIntent.putExtra("name", foafAgent.getName());
-			mapIntent.putExtra("img", foafAgent.getImageURL());
-			mapIntent.putExtra("website", foafAgent.getWebsite());
-			mapIntent.putExtra("interests", new StringSerializable(foafAgent
-					.getInterests()));
-			mapIntent.putExtra("knownAgentsName", new StringSerializable(
-					foafAgent.getKnownAgentsNames()));
+			mapIntent.putExtra("agent", foafAgent.getSerializableObject());
 			this.startActivity(mapIntent);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * List your friends.
+	 */
+	public void listFriends() {
+		
 	}
 
 	@Override

@@ -17,9 +17,10 @@ public final class R {
         public static final int settings_icon=0x7f020003;
     }
     public static final class id {
+        public static final int listFriendsButton=0x7f060001;
         public static final int mapMeButton=0x7f060000;
-        public static final int mapView=0x7f060001;
-        public static final int zoom=0x7f060002;
+        public static final int mapView=0x7f060002;
+        public static final int zoom=0x7f060003;
     }
     public static final class layout {
         public static final int main=0x7f030000;

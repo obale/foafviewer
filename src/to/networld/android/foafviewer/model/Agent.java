@@ -39,16 +39,11 @@ public class Agent implements Serializable {
 	 * Set the query prefix that handles the node of the person that is described by the FOAF file.
 	 */
 	private void setQueryPrefix() {
-		List<Element> nameNodes = this.getLinkNodes("/rdf:RDF/foaf:Person[@*='#me']");
-		if ( nameNodes.size() != 0) {
-			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='#me']";
+		List<Element> nameNodes = this.getLinkNodes("/rdf:RDF/foaf:PersonalProfileDocument/foaf:primaryTopic");
+		this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource") + "']";
+		if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
 			return;
-		}
-		nameNodes = this.getLinkNodes("/rdf:RDF/foaf:Person[@*='me']");
-		if ( nameNodes.size() != 0) {
-			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='me']";
-			return;
-		}
+		this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -56,10 +51,6 @@ public class Agent implements Serializable {
 		return (List<Element>) this.document.selectNodes(_query);
 	}
 
-	/**
-	 * 
-	 * @return The name as string
-	 */
 	public String getName() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:name");
 		if ( nameNodes.size() == 0 ) return "";
@@ -116,5 +107,19 @@ public class Agent implements Serializable {
 			interests.add(interestsNodes.get(count).valueOf("@label"));
 		}
 		return interests;
+	}
+	
+	public AgentSerializable getSerializableObject() {
+		AgentSerializable agent = new AgentSerializable();
+		agent.setAgentName(this.getName());
+		agent.setImageURL(this.getImageURL());
+		agent.setInterests(this.getInterests());
+		Pair<Double, Double> location = this.getLocation();
+		agent.setLatitude(location.first);
+		agent.setLongitude(location.second);
+		agent.setWebsite(this.getWebsite());
+		agent.setKnownAgents(this.getKnownAgents());
+		agent.setKnownAgentsNames(this.getKnownAgentsNames());
+		return agent;
 	}
 }
