@@ -19,18 +19,18 @@ import android.util.Pair;
  * @author Alex Oberhauser
  *
  */
-public class Agent implements Serializable {
+public class AgentHandler implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private SAXReader reader = new SAXReader();
 	private Document document = null;
 	private String queryPrefix = "";
 	
-	public Agent(URL _uri) throws DocumentException {
+	public AgentHandler(URL _uri) throws DocumentException {
 		this.document = this.reader.read(_uri);
 		this.setQueryPrefix();
 	}
 	
-	public Agent(File _file) throws DocumentException {
+	public AgentHandler(File _file) throws DocumentException {
 		this.document = this.reader.read(_file);
 		this.setQueryPrefix();
 	}
@@ -59,8 +59,12 @@ public class Agent implements Serializable {
 	
 	public String getImageURL() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:img");
-		if ( nameNodes.size() == 0 ) return "";
-		return nameNodes.get(0).valueOf("@resource");
+		if ( nameNodes.size() > 0 )
+			return nameNodes.get(0).valueOf("@resource");
+		nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:depiction");
+		if  (nameNodes.size() > 0)
+			return nameNodes.get(0).valueOf("@resource");
+		return "";
 	}
 	
 	public String getWebsite() {
@@ -93,7 +97,7 @@ public class Agent implements Serializable {
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
 		for (int count=0; count < knownNodes.size(); count++) {
 			try {
-				Agent friend = new Agent(new URL(knownNodes.get(count).valueOf("@resource")));
+				AgentHandler friend = new AgentHandler(new URL(knownNodes.get(count).valueOf("@resource")));
 				knownAgentsName.add(friend.getName());
 			} catch (Exception e) {}
 		}

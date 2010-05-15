@@ -3,4 +3,5 @@
     <string name="settings">FOAFSettings</string>
     <string name="foaf_map">FOAFMap</string>
     <string name="app_name">FOAFViewer</string>
+<string name="friend_list">FOAFFriendListing</string>
 </resources>

@@ -12,6 +12,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".FOAFMap" android:label="@string/foaf_map"/>
+        <activity android:name=".FOAFFriendListing" android:label="@string/friend_list"/>
         <uses-library android:name="com.google.android.maps" />
         <activity android:name=".FOAFSettings" android:label="@string/settings"/>
     </application>

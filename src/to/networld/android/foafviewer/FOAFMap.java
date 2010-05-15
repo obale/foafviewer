@@ -1,14 +1,12 @@
 package to.networld.android.foafviewer;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
 
 import to.networld.android.foafviewer.model.AgentSerializable;
+import to.networld.android.foafviewer.model.HTMLProfileHandler;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Looper;
 
@@ -24,6 +22,7 @@ import com.google.android.maps.OverlayItem;
  * 
  */
 public class FOAFMap extends MapActivity {
+	private Context context = this;
 
 	@Override
 	protected void onCreate(Bundle bundle) {
@@ -51,7 +50,7 @@ public class FOAFMap extends MapActivity {
 						(int) (agent.getLatitude() * 1E6),
 						(int) (agent.getLongitude() * 1E6));
 				OverlayItem meItem = new OverlayItem(geoPoint, "FOAF Agent",
-						setHTMLDescription(agent));
+						HTMLProfileHandler.getHTMLDescription(context, agent));
 				foafOverlay.addOverlay(meItem);
 				mapOverlays.add(foafOverlay);
 				mapView.getController().setCenter(geoPoint);
@@ -65,62 +64,5 @@ public class FOAFMap extends MapActivity {
 	@Override
 	protected boolean isRouteDisplayed() {
 		return false;
-	}
-
-	private String setHTMLDescription(AgentSerializable _agent) {
-		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-		StringBuffer strbuffer = new StringBuffer();
-		strbuffer.append("<center><h2><font color='blue'>");
-		strbuffer.append("<a href='" + _agent.getWebsite() + "'>");
-		strbuffer.append(_agent.getAgentName());
-		strbuffer.append("</a>");
-		strbuffer.append("</font></h2></center>");
-		strbuffer.append("<center><img src='" + _agent.getImageURL()
-				+ "' width='100px'></center>");
-		strbuffer.append("<table align='center' border='0'>");
-		strbuffer.append("<tr><td><b>GPS</b></td><td>");
-		strbuffer.append(_agent.getLatitude());
-		strbuffer.append(",");
-		strbuffer.append(_agent.getLongitude());
-		strbuffer.append("</td></tr>");
-		try {
-			Address address = geocoder.getFromLocation(
-					_agent.getLatitude(),
-					_agent.getLongitude(), 1).get(0);
-
-			String plz = address.getPostalCode();
-			String city = address.getLocality();
-			strbuffer.append("<tr><td><b>Location</b></td><td>");
-			strbuffer.append(plz + " " + city);
-			strbuffer.append("</td></tr>");
-
-			String street = address.getAddressLine(0);
-			strbuffer.append("<tr><td><b>Streetname</b></td><td>");
-			strbuffer.append(street);
-			strbuffer.append("</td></tr>");
-		} catch (Exception e) {
-		}
-		strbuffer.append("</table>");
-		strbuffer.append("<hr>");
-		
-		Vector<String> interests = _agent.getInterests();
-		strbuffer.append("<center><h3>Interests</h3></center>");
-		strbuffer.append("<ul>");
-		for (int count = 0; count < interests.size(); count++) {
-			strbuffer.append("<li> " + interests.get(count));
-		}
-		strbuffer.append("</ul>");
-		strbuffer.append("<hr>");
-		
-		Vector<String> knownAgentsName = _agent.getKnownAgentsNames();
-		strbuffer.append("<center><h3>Known Agents</h3></center>");
-		strbuffer.append("<ul>");
-		for (int count = 0; count < knownAgentsName.size(); count++) {
-			strbuffer.append("<li> " + knownAgentsName.get(count));
-		}
-		strbuffer.append("</ul>");
-		strbuffer.append("<hr>");
-		
-		return strbuffer.toString();
 	}
 }

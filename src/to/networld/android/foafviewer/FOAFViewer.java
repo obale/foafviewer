@@ -2,7 +2,7 @@ package to.networld.android.foafviewer;
 
 import java.net.URL;
 
-import to.networld.android.foafviewer.model.Agent;
+import to.networld.android.foafviewer.model.AgentHandler;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,13 +59,16 @@ public class FOAFViewer extends Activity {
 	 * Show you on map!
 	 */
 	public void mapMe() {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
 		try {
-			Agent foafAgent = new Agent(new URL(settings.getString("FOAF", "")));
+			AgentHandler foafAgent = new AgentHandler(new URL(settings.getString("FOAF", "")));
 			Intent mapIntent = new Intent(FOAFViewer.this, FOAFMap.class);
 			mapIntent.putExtra("agent", foafAgent.getSerializableObject());
 			this.startActivity(mapIntent);
 		} catch (Exception e) {
+			/*
+			 * TODO: Handle the exception.
+			 */
 			e.printStackTrace();
 		}
 	}
@@ -74,7 +77,18 @@ public class FOAFViewer extends Activity {
 	 * List your friends.
 	 */
 	public void listFriends() {
-		
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
+		try {
+			AgentHandler foafAgent = new AgentHandler(new URL(settings.getString("FOAF", "")));
+			Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
+			friendListIntent.putExtra("agent", foafAgent.getSerializableObject());
+			this.startActivity(friendListIntent);
+		} catch (Exception e) {
+			/*
+			 * TODO: Handle the exception.
+			 */
+			e.printStackTrace();
+		}
 	}
 
 	@Override

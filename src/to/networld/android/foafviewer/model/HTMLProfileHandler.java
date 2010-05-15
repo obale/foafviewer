@@ -1,0 +1,72 @@
+package to.networld.android.foafviewer.model;
+
+import java.util.Locale;
+import java.util.Vector;
+
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
+
+public final class HTMLProfileHandler {
+	
+	public static String getHTMLDescription(Context _context, AgentSerializable _agent) {
+		Geocoder geocoder = new Geocoder(_context, Locale.getDefault());
+		StringBuffer strbuffer = new StringBuffer();
+		strbuffer.append("<center><h2><font color='blue'>");
+		System.out.println(_agent.getWebsite());
+		if ( !_agent.getWebsite().equals("") ) {
+			strbuffer.append("<a href='" + _agent.getWebsite() + "'>");
+			strbuffer.append(_agent.getAgentName());
+			strbuffer.append("</a>");
+		} else {
+			strbuffer.append(_agent.getAgentName());
+		}
+		strbuffer.append("</font></h2></center>");
+		strbuffer.append("<center><img src='" + _agent.getImageURL() + "' width='100px'></center>");
+		strbuffer.append("<table align='center' border='0'>");
+		strbuffer.append("<tr><td><b>GPS</b></td><td>");
+		strbuffer.append(_agent.getLatitude());
+		strbuffer.append(",");
+		strbuffer.append(_agent.getLongitude());
+		strbuffer.append("</td></tr>");
+		try {
+			Address address = geocoder.getFromLocation(
+					_agent.getLatitude(),
+					_agent.getLongitude(), 1).get(0);
+
+			String plz = address.getPostalCode();
+			String city = address.getLocality();
+			strbuffer.append("<tr><td><b>Location</b></td><td>");
+			strbuffer.append(plz + " " + city);
+			strbuffer.append("</td></tr>");
+
+			String street = address.getAddressLine(0);
+			strbuffer.append("<tr><td><b>Streetname</b></td><td>");
+			strbuffer.append(street);
+			strbuffer.append("</td></tr>");
+		} catch (Exception e) {
+		}
+		strbuffer.append("</table>");
+		strbuffer.append("<hr>");
+		
+		Vector<String> interests = _agent.getInterests();
+		strbuffer.append("<center><h3>Interests</h3></center>");
+		strbuffer.append("<ul>");
+		for (int count = 0; count < interests.size(); count++) {
+			strbuffer.append("<li> " + interests.get(count));
+		}
+		strbuffer.append("</ul>");
+		strbuffer.append("<hr>");
+		
+		Vector<String> knownAgentsName = _agent.getKnownAgentsNames();
+		strbuffer.append("<center><h3>Known Agents</h3></center>");
+		strbuffer.append("<ul>");
+		for (int count = 0; count < knownAgentsName.size(); count++) {
+			strbuffer.append("<li> " + knownAgentsName.get(count));
+		}
+		strbuffer.append("</ul>");
+		strbuffer.append("<hr>");
+		
+		return strbuffer.toString();
+	}
+}
