@@ -10,8 +10,8 @@ import java.util.Vector;
  * 
  */
 public class AgentSerializable implements Serializable {
-	private static final long serialVersionUID = -1692777959499868705L;
-
+	private static final long serialVersionUID = 2361123841481595097L;
+	
 	private String agentName = null;
 	private Double latitude = 0.0;
 	private Double longitude = 0.0;
@@ -20,6 +20,8 @@ public class AgentSerializable implements Serializable {
 	private Vector<String> interests = new Vector<String>();
 	private Vector<String> knownAgents = new Vector<String>();
 	private Vector<String> knownAgentsNames = new Vector<String>();
+	private Vector<String> phoneNumbers = new Vector<String>();
+	private Vector<String> eMails = new Vector<String>();
 
 	public void setAgentName(String _agentName) {
 		this.agentName = _agentName;
@@ -53,6 +55,14 @@ public class AgentSerializable implements Serializable {
 		this.knownAgentsNames = _knownAgentsNames;
 	}
 
+	public void setPhoneNumbers(Vector<String> _phoneNumbers) {
+		this.phoneNumbers = _phoneNumbers;
+	}
+	
+	public void setEMails(Vector<String> _eMails) {
+		this.eMails = _eMails;
+	}
+	
 	public String getAgentName() { return this.agentName; }
 	public Double getLatitude() { return this.latitude;	}
 	public Double getLongitude() { return this.longitude; }
@@ -61,5 +71,6 @@ public class AgentSerializable implements Serializable {
 	public Vector<String> getInterests() { return this.interests; }
 	public Vector<String> getKnownAgents() { return this.knownAgents; }
 	public Vector<String> getKnownAgentsNames() { return this.knownAgentsNames;	}
-	
+	public Vector<String> getPhoneNumbers() { return this.phoneNumbers; }
+	public Vector<String> getEMails() { return this.eMails; }	
 }

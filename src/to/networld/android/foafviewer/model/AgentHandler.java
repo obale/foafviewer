@@ -113,6 +113,24 @@ public class AgentHandler implements Serializable {
 		return interests;
 	}
 	
+	public Vector<String> getEMails() {
+		Vector<String> eMails = new Vector<String>();
+		List<Element> eMailNodes = this.getLinkNodes(this.queryPrefix + "/foaf:mbox");
+		for (int count=0; count < eMailNodes.size(); count++) {
+			eMails.add(eMailNodes.get(count).valueOf("@resource").replaceAll("mailto:", ""));
+		}
+		return eMails;
+	}
+	
+	public Vector<String> getPhoneNumbers() {
+		Vector<String> phoneNumbers = new Vector<String>();
+		List<Element> phoneNumberNodes = this.getLinkNodes(this.queryPrefix + "/foaf:phone");
+		for (int count=0; count < phoneNumberNodes.size(); count++) {
+			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@resource").replaceAll("tel:", ""));
+		}
+		return phoneNumbers;
+	}
+	
 	public AgentSerializable getSerializableObject() {
 		AgentSerializable agent = new AgentSerializable();
 		agent.setAgentName(this.getName());
@@ -124,6 +142,8 @@ public class AgentHandler implements Serializable {
 		agent.setWebsite(this.getWebsite());
 		agent.setKnownAgents(this.getKnownAgents());
 		agent.setKnownAgentsNames(this.getKnownAgentsNames());
+		agent.setPhoneNumbers(this.getPhoneNumbers());
+		agent.setEMails(this.getEMails());
 		return agent;
 	}
 }

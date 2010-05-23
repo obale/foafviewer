@@ -48,6 +48,23 @@ public final class HTMLProfileHandler {
 		}
 		strbuffer.append("</table>");
 		strbuffer.append("<hr>");
+
+		strbuffer.append("<center><h3>Contact Methods</h3></center>");
+		strbuffer.append("<table align='center' border='0'>");
+		Vector<String> phoneNumbers = _agent.getPhoneNumbers();
+		for (int count = 0; count < phoneNumbers.size(); count++) {
+			strbuffer.append("<tr><td><b>Phone</b></td><td>");
+			strbuffer.append(phoneNumbers.get(count));
+			strbuffer.append("</td></tr>");
+		}
+		Vector<String> eMails = _agent.getEMails();
+		for (int count = 0; count < eMails.size(); count++) {
+			strbuffer.append("<tr><td><b>E-Mail</b></td><td>");
+			strbuffer.append(eMails.get(count));
+			strbuffer.append("</td></tr>");
+		}
+		strbuffer.append("</table>");
+		strbuffer.append("<hr>");
 		
 		Vector<String> interests = _agent.getInterests();
 		strbuffer.append("<center><h3>Interests</h3></center>");
