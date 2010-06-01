@@ -11,6 +11,7 @@ import to.networld.android.foafviewer.model.AgentSerializable;
 import to.networld.android.foafviewer.model.HTMLProfileHandler;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
@@ -22,6 +23,7 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
 /**
+ * The map that visualizes your FOAF file.
  * 
  * @author Alex Oberhauser
  * 
@@ -37,11 +39,13 @@ public class FOAFMap extends MapActivity {
 		mapView.setBuiltInZoomControls(true);
 		
 		/**
-		 * TODO: Read this values from the config file.
+		 * TODO: Read this values from a configuration file.
 		 */
 		mapView.setSatellite(false);
 		mapView.setStreetView(true);
 
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		
 		final ProgressDialog progressDialog = ProgressDialog.show(FOAFMap.this,
 				null, "Parsing FOAF file...", false);
 
@@ -75,6 +79,7 @@ public class FOAFMap extends MapActivity {
 					e.printStackTrace();
 				} finally {
 					progressDialog.dismiss();
+					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 				}
 			}
 		};

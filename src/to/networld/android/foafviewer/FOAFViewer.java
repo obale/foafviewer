@@ -34,6 +34,9 @@ public class FOAFViewer extends Activity {
 				case 1:
 					listFriends();
 					break;
+				case 2:
+					shareFOAFFile();
+					break;
 			}
 		}
 	};
@@ -51,10 +54,17 @@ public class FOAFViewer extends Activity {
 		map.put("top", "Visualize You!");
 		map.put("bottom", "Shows your FOAF file on a map.");
 		buttonList.add(map);
+		
 		map = new HashMap<String, String>();
 		map.put("icon", R.drawable.foaf_map + "");
 		map.put("top", "List Friends!");
 		map.put("bottom", "List all your known agents.");
+		buttonList.add(map);
+		
+		map = new HashMap<String, String>();
+		map.put("icon", R.drawable.share_icon + "");
+		map.put("top", "Share FOAF file!");
+		map.put("bottom", "Share your FOAF file with your friends or with the world.");
 		buttonList.add(map);
 		
 		SimpleAdapter adapterMainList = new SimpleAdapter(this, buttonList, 
@@ -73,6 +83,7 @@ public class FOAFViewer extends Activity {
 
 	/**
 	 * Show you on map!
+	 * TODO: Don't add a fix URL. Force the user to add his/her own UR
 	 */
 	private void mapMe() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
@@ -83,12 +94,25 @@ public class FOAFViewer extends Activity {
 	
 	/**
 	 * List your friends.
+	 * TODO: Don't add a fix URL. Force the user to add his/her own URL.
 	 */
 	private void listFriends() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
-		friendListIntent.putExtra("myFOAF", settings.getString("FOAF", ""));
+		friendListIntent.putExtra("myFOAF", settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
 		this.startActivity(friendListIntent);
+	}
+	
+	/**
+	 * Share your FOAF file with your friends or with the world.
+	 * TODO: Don't add a fix URL. Force the user to add his/her own URL.
+	 */
+	private void shareFOAFFile() {
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
+		shareIntent.setType("text/plain");
+		shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
+		startActivity(shareIntent);
 	}
 
 	@Override
