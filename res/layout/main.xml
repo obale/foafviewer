@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/MAIN"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-
-    <Button  
-    	android:id="@+id/mapMeButton"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content" 
-    	android:text="Show Me on Map!"
-    />
-    
-    <Button  
-    	android:id="@+id/listFriendsButton"
-    	android:layout_width="fill_parent" 
-    	android:layout_height="wrap_content" 
-    	android:text="List your Friends!"
-    />
-
-
-</LinearLayout>
+    android:layout_height="fill_parent"/>

@@ -1,24 +1,25 @@
 package to.networld.android.foafviewer;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 
+import org.dom4j.DocumentException;
+
 import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.AgentSerializable;
-import to.networld.android.foafviewer.model.HTMLProfileHandler;
 
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -38,13 +39,17 @@ public class FOAFFriendListing extends ListActivity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			CharSequence agentName = ((TextView) view).getText();
-			showProfile(results.get(agentName));
+			AgentSerializable foafAgent = results.get(agentName);
+			Intent profileIntent = new Intent(FOAFFriendListing.this, FOAFProfile.class);
+			profileIntent.putExtra("agent", foafAgent);
+			startActivity(profileIntent);
 		}
 	};
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		this.friendListAdapter = new ArrayAdapter<String>(this, R.layout.friendlist, R.id.friend_list);
 		this.setListAdapter(this.friendListAdapter);
@@ -54,9 +59,11 @@ public class FOAFFriendListing extends ListActivity {
 		
 		final ProgressDialog progressDialog = ProgressDialog.show(FOAFFriendListing.this, null, "Searching for Friends...", true);
 		Thread seeker = new Thread() {
-			
-			public void getFriends() {
-				AgentSerializable agent = (AgentSerializable)getIntent().getSerializableExtra("agent");
+			public void getFriends() throws MalformedURLException, DocumentException {
+				String agentURL = getIntent().getStringExtra("myFOAF");
+				AgentHandler foafAgent = new AgentHandler(new URL(agentURL));
+				AgentSerializable agent = foafAgent.getSerializableObject();
+					
 				Iterator<String> iter = agent.getKnownAgents().iterator();
 				AgentSerializable entry = null;
 				while ( iter.hasNext() ) {
@@ -69,24 +76,23 @@ public class FOAFFriendListing extends ListActivity {
 				}
 			}
 			
-			@Override
+			@Override//
 			public void run(){
-				this.getFriends();
+				try {
+					this.getFriends();
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (DocumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
 				guiHandler.post(updateFriends);
 				progressDialog.dismiss();
 			}
 		};
 		seeker.start();
-	}
-	
-	public void showProfile(AgentSerializable _agent) {
-		WebView wv = new WebView(this);
-		Dialog dialog = new Dialog(this);
-		wv.loadData(HTMLProfileHandler.getHTMLDescription(this, _agent), "text/html", "UTF-8");
-		dialog.setTitle("FOAF Profile");
-		dialog.setContentView(wv, new LinearLayout.LayoutParams(450, 500));
-		dialog.show();
 	}
 	
 	private void updateFriendsInUI() {
