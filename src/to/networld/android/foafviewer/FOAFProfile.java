@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Vector;
 
 import to.networld.android.foafviewer.model.AgentSerializable;
@@ -12,6 +13,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,8 +44,11 @@ public class FOAFProfile extends Activity {
 	private static final String ICON = "icon";
 	
 	private static final String NAME = "Name";
+	private static final String BIRTHDAY = "Date of Birth";
+	private static final String LOCATION = "Location";
 	private static final String MAIL = "E-Mail";
 	private static final String INTEREST = "Interest";
+	private static final String PHONE_NUMBER = "Phone Number";
 	
 	private ArrayList<HashMap<String, String>> profileList;
 	
@@ -64,6 +71,15 @@ public class FOAFProfile extends Activity {
 				} catch (MalformedURLException e) {
 				} catch (IOException e) {}
 				picDialog.show();
+			} else if ( entry.get(TOP).equals(PHONE_NUMBER) ) {
+				final Intent phoneIntent = new Intent(android.content.Intent.ACTION_CALL);
+				phoneIntent.setData(Uri.parse("tel:" + entry.get(BOTTOM)));
+				startActivity(phoneIntent);
+			} else if ( entry.get(TOP).equals(LOCATION) ) {
+				final Intent mapIntent = new Intent(android.content.Intent.ACTION_VIEW);
+				String location = entry.get(BOTTOM).replace(" ", "+");
+				mapIntent.setData(Uri.parse("geo:0,0?q=" + location));
+				startActivity(mapIntent);
 			}
 		}
 	};
@@ -88,6 +104,31 @@ public class FOAFProfile extends Activity {
 		profileList.add(map);
 		
 		/**
+		 * Date of Birth
+		 */
+		String dateOfBirth = agent.getDateOfBirth();
+		if ( dateOfBirth != null && !dateOfBirth.equals("") ) {
+			map = new HashMap<String, String>();
+			map.put(ICON, R.drawable.birthday_icon + "");
+			map.put(TOP, BIRTHDAY);
+			map.put(BOTTOM, dateOfBirth);
+			profileList.add(map);
+		}
+		
+		/**
+		 * Location
+		 */
+		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+		try {
+			Address address = geocoder.getFromLocation(agent.getLatitude(), agent.getLongitude(), 1).get(0);
+			map = new HashMap<String, String>();
+			map.put(ICON, R.drawable.location_icon + "");
+			map.put(TOP, LOCATION);
+			map.put(BOTTOM, address.getAddressLine(0) + ", " + address.getPostalCode() + " " + address.getLocality());
+			this.profileList.add(map);
+		} catch (Exception e) {}
+		
+		/**
 		 * E-Mails
 		 */
 		Vector<String> mails = agent.getEMails();
@@ -100,8 +141,16 @@ public class FOAFProfile extends Activity {
 		}
 		
 		/**
-		 * TODO: Phone Numbers
+		 * Phone Numbers
 		 */
+		Vector<String> phoneNumbers = agent.getPhoneNumbers();
+		for (String phoneNumber : phoneNumbers) {
+			map = new HashMap<String, String>();
+			map.put(ICON, R.drawable.tel_icon + "");
+			map.put(TOP, PHONE_NUMBER);
+			map.put(BOTTOM, phoneNumber);
+			this.profileList.add(map);
+		}
 		
 		/**
 		 * TODO: Twitter Account

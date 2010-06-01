@@ -13,6 +13,7 @@ public class AgentSerializable implements Serializable {
 	private static final long serialVersionUID = 2361123841481595097L;
 	
 	private String agentName = null;
+	private String dateOfBirth = null;
 	private Double latitude = 0.0;
 	private Double longitude = 0.0;
 	private String website = null;
@@ -26,6 +27,11 @@ public class AgentSerializable implements Serializable {
 	public void setAgentName(String _agentName) {
 		this.agentName = _agentName;
 	}
+	
+
+	public void setDateOfBirth(String _dateOfBirth) {
+		this.dateOfBirth = _dateOfBirth;
+	}	
 
 	public void setLatitude(Double _latitude) {
 		this.latitude = _latitude;
@@ -64,6 +70,7 @@ public class AgentSerializable implements Serializable {
 	}
 	
 	public String getAgentName() { return this.agentName; }
+	public String getDateOfBirth() { return this.dateOfBirth; }
 	public Double getLatitude() { return this.latitude;	}
 	public Double getLongitude() { return this.longitude; }
 	public String getWebsite() { return this.website; }
@@ -72,5 +79,6 @@ public class AgentSerializable implements Serializable {
 	public Vector<String> getKnownAgents() { return this.knownAgents; }
 	public Vector<String> getKnownAgentsNames() { return this.knownAgentsNames;	}
 	public Vector<String> getPhoneNumbers() { return this.phoneNumbers; }
-	public Vector<String> getEMails() { return this.eMails; }	
+	public Vector<String> getEMails() { return this.eMails; }
+
 }

@@ -40,10 +40,12 @@ public class AgentHandler implements Serializable {
 	 */
 	private void setQueryPrefix() {
 		List<Element> nameNodes = this.getLinkNodes("/rdf:RDF/foaf:PersonalProfileDocument/foaf:primaryTopic");
-		this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource") + "']";
-		if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
-			return;
-		this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
+		if (nameNodes.size() > 0) {
+			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource") + "']";
+			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
+				return;
+			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -65,6 +67,12 @@ public class AgentHandler implements Serializable {
 		if  (nameNodes.size() > 0)
 			return nameNodes.get(0).valueOf("@resource");
 		return "";
+	}
+	
+	public String getDateOfBirth() {
+		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:dateOfBirth");
+		if ( nameNodes.size() == 0 ) return "";
+		return nameNodes.get(0).getText();
 	}
 	
 	public String getWebsite() {
@@ -117,7 +125,9 @@ public class AgentHandler implements Serializable {
 		Vector<String> eMails = new Vector<String>();
 		List<Element> eMailNodes = this.getLinkNodes(this.queryPrefix + "/foaf:mbox");
 		for (int count=0; count < eMailNodes.size(); count++) {
-			eMails.add(eMailNodes.get(count).valueOf("@resource").replaceAll("mailto:", ""));
+			String mail = eMailNodes.get(count).valueOf("@resource").replaceAll("mailto:", "");
+			if ( !mail.equals("") )
+				eMails.add(mail);
 		}
 		return eMails;
 	}
@@ -134,6 +144,7 @@ public class AgentHandler implements Serializable {
 	public AgentSerializable getSerializableObject() {
 		AgentSerializable agent = new AgentSerializable();
 		agent.setAgentName(this.getName());
+		agent.setDateOfBirth(this.getDateOfBirth());
 		agent.setImageURL(this.getImageURL());
 		agent.setInterests(this.getInterests());
 		Pair<Double, Double> location = this.getLocation();

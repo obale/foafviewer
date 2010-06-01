@@ -20,7 +20,6 @@ public class ErrorDialog extends Dialog {
 	
     private final android.view.View.OnClickListener okButtonListener = new android.view.View.OnClickListener() {
 		public void onClick(View _view) {
-			System.out.println("Dismiss ErrorDialog!");
 			dismiss();
 		}
     };
@@ -29,11 +28,6 @@ public class ErrorDialog extends Dialog {
 		super(_context);
 		this.errorTitle = _errorTitle;
 		this.errorMessage = _errorMessage;
-	}
-	
-	@Override
-	public void onStop() {
-		System.out.println("OnStop in ErrorDialog");
 	}
 	
 	@Override
