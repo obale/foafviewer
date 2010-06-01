@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,7 +12,9 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
@@ -23,6 +26,7 @@ import android.widget.AdapterView.OnItemClickListener;
  */
 public class FOAFViewer extends Activity {
 	private static final int MENU_SETTINGS = 0x0010;
+	private static final int MENU_ABOUT = 0x0020;
 
 	private OnItemClickListener listClickListener = new OnItemClickListener() {
 		@Override
@@ -50,13 +54,13 @@ public class FOAFViewer extends Activity {
 		list.setOnItemClickListener(this.listClickListener);
 		ArrayList<HashMap<String, String>> buttonList = new ArrayList<HashMap<String, String>>();
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("icon", R.drawable.map + "");
+		map.put("icon", R.drawable.foaf_map + "");
 		map.put("top", "Visualize You!");
 		map.put("bottom", "Shows your FOAF file on a map.");
 		buttonList.add(map);
 		
 		map = new HashMap<String, String>();
-		map.put("icon", R.drawable.foaf_map + "");
+		map.put("icon", R.drawable.avatar_icon + "");
 		map.put("top", "List Friends!");
 		map.put("bottom", "List all your known agents.");
 		buttonList.add(map);
@@ -76,8 +80,8 @@ public class FOAFViewer extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SETTINGS, 20, "Settings").setIcon(
-				R.drawable.settings_icon);
+		menu.add(0, MENU_SETTINGS, 20, "Settings").setIcon(R.drawable.settings_icon);
+		menu.add(0, MENU_ABOUT, 30, "About").setIcon(R.drawable.about_icon);
 		return true;
 	}
 
@@ -114,14 +118,35 @@ public class FOAFViewer extends Activity {
 		shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
 		startActivity(shareIntent);
 	}
+	
+	private void aboutDialog() {
+        WebView wv = new WebView(this);
+
+        StringBuffer strbuffer = new StringBuffer();
+        strbuffer.append("<i>&copy; 2010 by <a href='http://devnull.networld.to/foaf.rdf#me'>Alex Oberhauser</a></i> <br/>");
+        strbuffer.append("<i>licensed under the <a href='http://www.gnu.org/licenses/gpl-3.0.rdf'>GPL 3.0</a></i><p/>");
+        strbuffer.append("<a href='http://foafviewer.android.networld.to'>FOAF Viewer</a> purpose is to bring the Semantic ");
+        strbuffer.append("Technolgy to mobile devices. With this application your are able to visualize the XML style ");
+        strbuffer.append("FOAF file in a human readable form and use the information directly with your phone");
+        wv.loadData(strbuffer.toString(), "text/html", "utf-8");
+
+        Dialog dialog = new Dialog(this);
+        dialog.setTitle("About");
+        dialog.addContentView(wv, new LinearLayout.LayoutParams(400, 400));
+        dialog.show();
+
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_SETTINGS:
-			Intent intent = new Intent(FOAFViewer.this, FOAFSettings.class);
-			this.startActivity(intent);
-			return true;
+			case MENU_SETTINGS:
+				Intent intent = new Intent(FOAFViewer.this, FOAFSettings.class);
+				this.startActivity(intent);
+				return true;
+			case MENU_ABOUT:
+				this.aboutDialog();
+				return true;
 		}
 		return false;
 	}

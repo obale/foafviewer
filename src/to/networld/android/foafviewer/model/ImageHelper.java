@@ -20,7 +20,6 @@ public final class ImageHelper {
 		URL url = new URL(_imageURL);
 		InputStream is = (InputStream)url.getContent();
 		Drawable drawable = Drawable.createFromStream(is, "pic");
-		drawable.setAlpha(200);
 		return drawable;
 	}
 }

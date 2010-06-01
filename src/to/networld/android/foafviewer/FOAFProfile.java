@@ -13,6 +13,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
@@ -63,11 +65,15 @@ public class FOAFProfile extends Activity {
 				eMailIntent .putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{ entry.get(BOTTOM) });
 				startActivity(eMailIntent);
 			} else if ( entry.get(TOP).equals(NAME) ) {
+				/**
+				 * XXX: Dialog too big for the image.
+				 */
 				Dialog picDialog = new Dialog(context);
-				picDialog.setContentView(R.layout.pic_dialog);
-				ImageView portrait = (ImageView) picDialog.findViewById(R.id.dialog_portrait);
+				ImageView portrait = new ImageView(context);
 				try {
-					portrait.setImageDrawable(ImageHelper.getDrawable(agent.getImageURL()));
+					Drawable drawable = ImageHelper.getDrawable(agent.getImageURL());
+					portrait.setBackgroundDrawable(drawable);
+					picDialog.addContentView(portrait, new LinearLayout.LayoutParams(drawable.getMinimumWidth(), drawable.getMinimumHeight()));
 				} catch (MalformedURLException e) {
 				} catch (IOException e) {}
 				picDialog.show();
@@ -98,7 +104,7 @@ public class FOAFProfile extends Activity {
 		 * Name
 		 */
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put(ICON, R.drawable.foaf + "");
+		map.put(ICON, R.drawable.avatar_icon + "");
 		map.put(TOP, NAME);
 		map.put(BOTTOM, agent.getAgentName());
 		profileList.add(map);
