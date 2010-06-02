@@ -40,7 +40,7 @@ public class FOAFOverlay extends ItemizedOverlay<OverlayItem> {
 	  if ( this.foafContext != null) {
 		  WebView wv = new WebView(this.foafContext);
 		  Dialog dialog = new Dialog(this.foafContext);
-		  wv.loadData(item.getSnippet(), "text/html", "UTF-8");
+		  wv.loadData(item.getSnippet(), "text/html", "utf-8");
 		  dialog.setTitle(item.getTitle());
 		  dialog.setContentView(wv, new LinearLayout.LayoutParams(450, 500));
 		  dialog.show();

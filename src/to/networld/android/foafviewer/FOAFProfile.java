@@ -2,15 +2,19 @@ package to.networld.android.foafviewer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 
-import to.networld.android.foafviewer.model.AgentSerializable;
+import org.dom4j.DocumentException;
+
+import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.ImageHelper;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -18,6 +22,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -39,7 +45,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class FOAFProfile extends Activity {
 	private final Context context = this;
 	
-	private AgentSerializable agent = null;
+	private AgentHandler agent = null;
 	
 	private static final String BOTTOM = "bottom";
 	private static final String TOP = "top";
@@ -52,7 +58,25 @@ public class FOAFProfile extends Activity {
 	private static final String INTEREST = "Interest";
 	private static final String PHONE_NUMBER = "Phone Number";
 	
+	private ListView list; 
+	
+	private final Handler guiHandler = new Handler();
+	private final Runnable updateProfile = new Runnable() {
+		@Override
+		public void run() {
+			 updateProfileInGUI();
+		}
+	};
+	
 	private ArrayList<HashMap<String, String>> profileList;
+	
+
+	private void updateProfileInGUI() {
+		SimpleAdapter adapterProfileList = new SimpleAdapter(context, profileList, 
+				R.layout.list_entry, new String[]{ "icon", "top", "bottom" },
+				new int[] { R.id.icon, R.id.topText, R.id.bottomText });
+		list.setAdapter(adapterProfileList);
+	}
 	
 	private OnItemClickListener listClickListener = new OnItemClickListener() {
 		@Override
@@ -93,101 +117,115 @@ public class FOAFProfile extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		final ProgressDialog progressDialog = ProgressDialog.show(FOAFProfile.this, null, "Preparing FOAF Profile...", true);
 		setContentView(R.layout.profile);
-		agent = (AgentSerializable)getIntent().getSerializableExtra("agent");
+		String agentURL = getIntent().getStringExtra("agent");
+		try {
+			this.agent = new AgentHandler(new URL(agentURL), this);
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+			return;
+		} catch (DocumentException e1) {
+			e1.printStackTrace();
+			return;
+		}
 			
-		ListView list = (ListView) findViewById(R.id.profileList);
-		list.setOnItemClickListener(this.listClickListener);
+		this.list = (ListView) findViewById(R.id.profileList);
+		this.list.setOnItemClickListener(listClickListener);
 		this.profileList = new ArrayList<HashMap<String, String>>();
 		
-		/**
-		 * Name
-		 */
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put(ICON, R.drawable.avatar_icon + "");
-		map.put(TOP, NAME);
-		map.put(BOTTOM, agent.getAgentName());
-		profileList.add(map);
-		
-		/**
-		 * Date of Birth
-		 */
-		String dateOfBirth = agent.getDateOfBirth();
-		if ( dateOfBirth != null && !dateOfBirth.equals("") ) {
-			map = new HashMap<String, String>();
-			map.put(ICON, R.drawable.birthday_icon + "");
-			map.put(TOP, BIRTHDAY);
-			map.put(BOTTOM, dateOfBirth);
-			profileList.add(map);
-		}
-		
-		/**
-		 * Location
-		 */
-		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-		try {
-			Address address = geocoder.getFromLocation(agent.getLatitude(), agent.getLongitude(), 1).get(0);
-			map = new HashMap<String, String>();
-			map.put(ICON, R.drawable.location_icon + "");
-			map.put(TOP, LOCATION);
-			map.put(BOTTOM, address.getAddressLine(0) + ", " + address.getPostalCode() + " " + address.getLocality());
-			this.profileList.add(map);
-		} catch (Exception e) {}
-		
-		/**
-		 * E-Mails
-		 */
-		Vector<String> mails = agent.getEMails();
-		for (String eMail : mails) {
-			map = new HashMap<String, String>();
-			map.put(ICON, R.drawable.email_icon + "");
-			map.put(TOP, MAIL);
-			map.put(BOTTOM, eMail);
-			this.profileList.add(map);
-		}
-		
-		/**
-		 * Phone Numbers
-		 */
-		Vector<String> phoneNumbers = agent.getPhoneNumbers();
-		for (String phoneNumber : phoneNumbers) {
-			map = new HashMap<String, String>();
-			map.put(ICON, R.drawable.tel_icon + "");
-			map.put(TOP, PHONE_NUMBER);
-			map.put(BOTTOM, phoneNumber);
-			this.profileList.add(map);
-		}
-		
-		/**
-		 * TODO: Twitter Account
-		 */
-		
-		/**
-		 * TODO: Facebook Account
-		 */
-		
-		/**
-		 * Interests
-		 */
-		Vector<String> interests = agent.getInterests();
-		for (String interest : interests) {
-			map = new HashMap<String, String>();
-			map.put(ICON, R.drawable.leisure_icon + "");
-			map.put(TOP, INTEREST);
-			map.put(BOTTOM, interest);
-			this.profileList.add(map);
-			
-		}
-		
-		/**
-		 * TODO: Known Agents
-		 */
-		
-		SimpleAdapter adapterProfileList = new SimpleAdapter(this, profileList, 
-				R.layout.list_entry, new String[]{ "icon", "top", "bottom" },
-				new int[] { R.id.icon, R.id.topText, R.id.bottomText });
-		
-		list.setAdapter(adapterProfileList);
+		Thread seeker = new Thread() {
+			@Override
+			public void run(){
+				/**
+				 * Name
+				 */
+				HashMap<String, String> map = new HashMap<String, String>();
+				map.put(ICON, R.drawable.avatar_icon + "");
+				map.put(TOP, NAME);
+				map.put(BOTTOM, agent.getName());
+				profileList.add(map);
+				
+				/**
+				 * Date of Birth
+				 */
+				String dateOfBirth = agent.getDateOfBirth();
+				if ( dateOfBirth != null && !dateOfBirth.equals("") ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.birthday_icon + "");
+					map.put(TOP, BIRTHDAY);
+					map.put(BOTTOM, dateOfBirth);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Location
+				 */
+				Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+				try {
+					Pair<Double, Double> geoPoint = agent.getLocation();
+					Address address = geocoder.getFromLocation(geoPoint.first, geoPoint.second, 1).get(0);
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.location_icon + "");
+					map.put(TOP, LOCATION);
+					map.put(BOTTOM, address.getAddressLine(0) + ", " + address.getPostalCode() + " " + address.getLocality());
+					profileList.add(map);
+				} catch (Exception e) {}
+				
+				/**
+				 * E-Mails
+				 */
+				Vector<String> mails = agent.getEMails();
+				for (String eMail : mails) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.email_icon + "");
+					map.put(TOP, MAIL);
+					map.put(BOTTOM, eMail);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Phone Numbers
+				 */
+				Vector<String> phoneNumbers = agent.getPhoneNumbers();
+				for (String phoneNumber : phoneNumbers) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.tel_icon + "");
+					map.put(TOP, PHONE_NUMBER);
+					map.put(BOTTOM, phoneNumber);
+					profileList.add(map);
+				}
+				
+				/**
+				 * TODO: Twitter Account
+				 */
+				
+				/**
+				 * TODO: Facebook Account
+				 */
+				
+				/**
+				 * Interests
+				 */
+				Vector<String> interests = agent.getInterests();
+				for (String interest : interests) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.leisure_icon + "");
+					map.put(TOP, INTEREST);
+					map.put(BOTTOM, interest);
+					profileList.add(map);
+					
+				}
+				
+				/**
+				 * TODO: Known Agents
+				 */
+				
+				guiHandler.post(updateProfile);
+				progressDialog.dismiss();
+			}
+		};
+		seeker.start();
 	}
 
 }

@@ -6,33 +6,34 @@ import java.util.Vector;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
+import android.util.Pair;
 
 public final class HTMLProfileHandler {
 	
-	public static String getHTMLDescription(Context _context, AgentSerializable _agent) {
+	public static String getHTMLDescription(Context _context, AgentHandler _agent) {
 		Geocoder geocoder = new Geocoder(_context, Locale.getDefault());
 		StringBuffer strbuffer = new StringBuffer();
 		strbuffer.append("<center><h2><font color='blue'>");
-		System.out.println(_agent.getWebsite());
 		if ( !_agent.getWebsite().equals("") ) {
 			strbuffer.append("<a href='" + _agent.getWebsite() + "'>");
-			strbuffer.append(_agent.getAgentName());
+			strbuffer.append(_agent.getName());
 			strbuffer.append("</a>");
 		} else {
-			strbuffer.append(_agent.getAgentName());
+			strbuffer.append(_agent.getName());
 		}
 		strbuffer.append("</font></h2></center>");
 		strbuffer.append("<center><img src='" + _agent.getImageURL() + "' width='100px'></center>");
 		strbuffer.append("<table align='center' border='0'>");
 		strbuffer.append("<tr><td><b>GPS</b></td><td>");
-		strbuffer.append(_agent.getLatitude());
+		Pair<Double, Double> geoPoint = _agent.getLocation();
+		strbuffer.append(geoPoint.first);
 		strbuffer.append(",");
-		strbuffer.append(_agent.getLongitude());
+		strbuffer.append(geoPoint.second);
 		strbuffer.append("</td></tr>");
 		try {
 			Address address = geocoder.getFromLocation(
-					_agent.getLatitude(),
-					_agent.getLongitude(), 1).get(0);
+					geoPoint.first,
+					geoPoint.second, 1).get(0);
 
 			String plz = address.getPostalCode();
 			String city = address.getLocality();

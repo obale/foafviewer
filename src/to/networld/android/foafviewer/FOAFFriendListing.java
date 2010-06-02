@@ -9,10 +9,10 @@ import java.util.Iterator;
 import org.dom4j.DocumentException;
 
 import to.networld.android.foafviewer.model.AgentHandler;
-import to.networld.android.foafviewer.model.AgentSerializable;
 
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -25,8 +25,10 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class FOAFFriendListing extends ListActivity {
-	private Hashtable<String, AgentSerializable> results = new Hashtable<String, AgentSerializable>();
+	private final Context context = this;
+	private Hashtable<String, String> results = new Hashtable<String, String>();
 	private ArrayAdapter<String> friendListAdapter = null;
+	
 	private final Handler guiHandler = new Handler();
 	private final Runnable updateFriends = new Runnable() {
 		@Override
@@ -39,9 +41,9 @@ public class FOAFFriendListing extends ListActivity {
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			CharSequence agentName = ((TextView) view).getText();
-			AgentSerializable foafAgent = results.get(agentName);
+			String friendFoafURL = results.get(agentName);
 			Intent profileIntent = new Intent(FOAFFriendListing.this, FOAFProfile.class);
-			profileIntent.putExtra("agent", foafAgent);
+			profileIntent.putExtra("agent", friendFoafURL);
 			startActivity(profileIntent);
 		}
 	};
@@ -61,22 +63,22 @@ public class FOAFFriendListing extends ListActivity {
 		Thread seeker = new Thread() {
 			public void getFriends() throws MalformedURLException, DocumentException {
 				String agentURL = getIntent().getStringExtra("myFOAF");
-				AgentHandler foafAgent = new AgentHandler(new URL(agentURL));
-				AgentSerializable agent = foafAgent.getSerializableObject();
+				AgentHandler foafAgent = new AgentHandler(new URL(agentURL), context);
 					
-				Iterator<String> iter = agent.getKnownAgents().iterator();
-				AgentSerializable entry = null;
+				Iterator<String> iter = foafAgent.getKnownAgents().iterator();
+				AgentHandler entry = null;
 				while ( iter.hasNext() ) {
 					try {
-						entry = new AgentHandler(new URL(iter.next())).getSerializableObject();
+						String friendURL = iter.next();
+						entry = new AgentHandler(new URL(friendURL), context);
 						synchronized(results) {
-							results.put(entry.getAgentName(), entry);
+							results.put(entry.getName(), friendURL);
 						}
 					} catch (Exception e) {}
 				}
 			}
 			
-			@Override//
+			@Override
 			public void run(){
 				try {
 					this.getFriends();

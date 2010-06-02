@@ -3,10 +3,13 @@ package to.networld.android.foafviewer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import to.networld.android.foafviewer.error.ErrorDialog;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -41,6 +44,12 @@ public class FOAFViewer extends Activity {
 				case 2:
 					shareFOAFFile();
 					break;
+				case 3:
+					generateFOAFFile();
+					break;
+				case 4:
+					updateFriendList();
+					break;
 			}
 		}
 	};
@@ -48,6 +57,8 @@ public class FOAFViewer extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		
 		setContentView(R.layout.main);
 		
 		ListView list = (ListView) findViewById(R.id.MAIN);
@@ -67,8 +78,20 @@ public class FOAFViewer extends Activity {
 		
 		map = new HashMap<String, String>();
 		map.put("icon", R.drawable.share_icon + "");
-		map.put("top", "Share FOAF file!");
-		map.put("bottom", "Share your FOAF file with your friends or with the world.");
+		map.put("top", "Share FOAF URL!");
+		map.put("bottom", "Share your FOAF URL with your friends or with the world.");
+		buttonList.add(map);
+		
+		map = new HashMap<String, String>();
+		map.put("icon", R.drawable.foaf_gen + "");
+		map.put("top", "Generate FOAF file!");
+		map.put("bottom", "TODO: Implement this feature!");
+		buttonList.add(map);
+		
+		map = new HashMap<String, String>();
+		map.put("icon", R.drawable.update_icon + "");
+		map.put("top", "Update Friend List!");
+		map.put("bottom", "TODO: Implement this feature!");
 		buttonList.add(map);
 		
 		SimpleAdapter adapterMainList = new SimpleAdapter(this, buttonList, 
@@ -87,36 +110,63 @@ public class FOAFViewer extends Activity {
 
 	/**
 	 * Show you on map!
-	 * TODO: Don't add a fix URL. Force the user to add his/her own UR
 	 */
 	private void mapMe() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
-		Intent mapIntent = new Intent(FOAFViewer.this, FOAFMap.class);
-		mapIntent.putExtra("myFOAF", settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
-		this.startActivity(mapIntent);
+		String ownFOAF = settings.getString("FOAF", "");
+		if ( !ownFOAF.equals("") ) {
+			Intent mapIntent = new Intent(FOAFViewer.this, FOAFMap.class);
+			mapIntent.putExtra("myFOAF", ownFOAF);
+			this.startActivity(mapIntent);
+		} else {
+			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();
+		}
 	}
 	
 	/**
 	 * List your friends.
-	 * TODO: Don't add a fix URL. Force the user to add his/her own URL.
 	 */
 	private void listFriends() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
-		friendListIntent.putExtra("myFOAF", settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
-		this.startActivity(friendListIntent);
+		String ownFOAF = settings.getString("FOAF", "");
+		if ( !ownFOAF.equals("") ) {
+			Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
+			friendListIntent.putExtra("myFOAF", ownFOAF);
+			this.startActivity(friendListIntent);
+		} else {
+			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();			
+		}
 	}
 	
 	/**
 	 * Share your FOAF file with your friends or with the world.
-	 * TODO: Don't add a fix URL. Force the user to add his/her own URL.
+	 * TODO: Don't add a fix URL as fallback. Force the user to add his/her own URL.
 	 */
 	private void shareFOAFFile() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		Intent shareIntent = new Intent(android.content.Intent.ACTION_SEND);
 		shareIntent.setType("text/plain");
-		shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, settings.getString("FOAF", "http://devnull.networld.to/foaf.rdf"));
-		startActivity(shareIntent);
+		String ownFOAF = settings.getString("FOAF", "");
+		if ( !ownFOAF.equals("") ) {
+			shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, ownFOAF);
+			this.startActivity(shareIntent);
+		} else {
+			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();
+		}
+	}
+	
+	/**
+	 * TODO: Implement the FOAF generation code.
+	 */
+	private void generateFOAFFile() {
+		new ErrorDialog(this, "Unimplemented Feature", "This feature is planned in a future release!").show();
+	}
+	
+	/**
+	 * TODO: Implement the friend list update function.
+	 */
+	private void updateFriendList() {
+		new ErrorDialog(this, "Unimplemented Feature", "This feature is planned in a future release!").show();
 	}
 	
 	private void aboutDialog() {
@@ -134,7 +184,6 @@ public class FOAFViewer extends Activity {
         dialog.setTitle("About");
         dialog.addContentView(wv, new LinearLayout.LayoutParams(400, 400));
         dialog.show();
-
 	}
 
 	@Override

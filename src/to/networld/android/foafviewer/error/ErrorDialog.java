@@ -42,7 +42,6 @@ public class ErrorDialog extends Dialog {
 		Button okButton = (Button)this.findViewById(R.id.alert_ok);
 		if (okButton != null)
 			okButton.setOnClickListener(this.okButtonListener);	
-		this.show();
 	}
 
 }

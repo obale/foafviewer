@@ -7,7 +7,6 @@ import java.util.List;
 import org.dom4j.DocumentException;
 
 import to.networld.android.foafviewer.model.AgentHandler;
-import to.networld.android.foafviewer.model.AgentSerializable;
 import to.networld.android.foafviewer.model.HTMLProfileHandler;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,6 +14,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Pair;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -34,6 +34,8 @@ public class FOAFMap extends MapActivity {
 	@Override
 	protected void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		final ProgressDialog progressDialog = ProgressDialog.show(FOAFMap.this, null, "Parsing FOAF file...", true);
 		setContentView(R.layout.map);
 		final MapView mapView = (MapView) findViewById(R.id.mapView);
 		mapView.setBuiltInZoomControls(true);
@@ -43,11 +45,6 @@ public class FOAFMap extends MapActivity {
 		 */
 		mapView.setSatellite(false);
 		mapView.setStreetView(true);
-
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
-		final ProgressDialog progressDialog = ProgressDialog.show(FOAFMap.this,
-				null, "Parsing FOAF file...", false);
 
 		/**
 		 * Initiating the FOAF map overlay.
@@ -63,10 +60,11 @@ public class FOAFMap extends MapActivity {
 				
 				String agentURL = getIntent().getStringExtra("myFOAF");
 				try {
-					AgentSerializable agent = new AgentHandler(new URL(agentURL)).getSerializableObject();
+					AgentHandler agent = new AgentHandler(new URL(agentURL), context);
+					Pair<Double, Double> gpsPoint = agent.getLocation();
 					GeoPoint geoPoint = new GeoPoint(
-							(int) (agent.getLatitude() * 1E6),
-							(int) (agent.getLongitude() * 1E6));
+							(int) (gpsPoint.first * 1E6),
+							(int) (gpsPoint.second * 1E6));
 					OverlayItem meItem = new OverlayItem(geoPoint, "FOAF Agent",
 							HTMLProfileHandler.getHTMLDescription(context, agent));
 					foafOverlay.addOverlay(meItem);
@@ -79,7 +77,6 @@ public class FOAFMap extends MapActivity {
 					e.printStackTrace();
 				} finally {
 					progressDialog.dismiss();
-					setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 				}
 			}
 		};
