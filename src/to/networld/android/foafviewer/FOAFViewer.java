@@ -1,9 +1,12 @@
 package to.networld.android.foafviewer;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Vector;
 
-import to.networld.android.foafviewer.error.ErrorDialog;
+import to.networld.android.foafviewer.model.AgentHandler;
+import to.networld.android.foafviewer.model.CacheHandler;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -58,7 +61,6 @@ public class FOAFViewer extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		
 		setContentView(R.layout.main);
 		
 		ListView list = (ListView) findViewById(R.id.MAIN);
@@ -90,8 +92,8 @@ public class FOAFViewer extends Activity {
 		
 		map = new HashMap<String, String>();
 		map.put("icon", R.drawable.update_icon + "");
-		map.put("top", "Update Friend List!");
-		map.put("bottom", "TODO: Implement this feature!");
+		map.put("top", "Update Cache!");
+		map.put("bottom", "Refreshing your FOAF file and that of your friends.");
 		buttonList.add(map);
 		
 		SimpleAdapter adapterMainList = new SimpleAdapter(this, buttonList, 
@@ -119,7 +121,7 @@ public class FOAFViewer extends Activity {
 			mapIntent.putExtra("myFOAF", ownFOAF);
 			this.startActivity(mapIntent);
 		} else {
-			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();
+			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
 		}
 	}
 	
@@ -134,7 +136,7 @@ public class FOAFViewer extends Activity {
 			friendListIntent.putExtra("myFOAF", ownFOAF);
 			this.startActivity(friendListIntent);
 		} else {
-			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();			
+			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();			
 		}
 	}
 	
@@ -151,7 +153,7 @@ public class FOAFViewer extends Activity {
 			shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, ownFOAF);
 			this.startActivity(shareIntent);
 		} else {
-			new ErrorDialog(this, "Missing FOAF file", "Please set your FOAF file!").show();
+			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
 		}
 	}
 	
@@ -159,14 +161,31 @@ public class FOAFViewer extends Activity {
 	 * TODO: Implement the FOAF generation code.
 	 */
 	private void generateFOAFFile() {
-		new ErrorDialog(this, "Unimplemented Feature", "This feature is planned in a future release!").show();
+		new GenericDialog(this, "Unimplemented Feature", "This feature is planned in a future release!", R.drawable.error_icon).show();
 	}
 	
 	/**
 	 * TODO: Implement the friend list update function.
 	 */
 	private void updateFriendList() {
-		new ErrorDialog(this, "Unimplemented Feature", "This feature is planned in a future release!").show();
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		String ownFOAF = settings.getString("FOAF", "");
+		if ( !ownFOAF.equals("") ) {
+			CacheHandler.cleaningCache(this);
+			try {
+				AgentHandler agent = new AgentHandler(new URL(ownFOAF), this);
+				Vector<String> knownAgents = agent.getKnownAgents();
+				for ( String knownAgent : knownAgents ) {
+					new AgentHandler(new URL(knownAgent), this);
+				}
+				new GenericDialog(this, "Refreshing Cache Successful", "Your FOAF file and that of your friends are refreshed!", R.drawable.ok_icon).show();
+			} catch (Exception e) {
+				e.printStackTrace();
+				new GenericDialog(this, "Refreshing Cache Failed", e.getLocalizedMessage(), R.drawable.error_icon).show();
+			}
+		} else {
+			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
+		}
 	}
 	
 	private void aboutDialog() {

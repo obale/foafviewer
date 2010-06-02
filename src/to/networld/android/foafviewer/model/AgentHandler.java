@@ -1,20 +1,12 @@
 package to.networld.android.foafviewer.model;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Vector;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 import android.content.Context;
 import android.util.Pair;
@@ -25,16 +17,13 @@ import android.util.Pair;
  * @author Alex Oberhauser
  *
  */
-public class AgentHandler implements Serializable {
-	private static final long serialVersionUID = -7983879026533503759L;
-	
-	private SAXReader reader = new SAXReader();
+public class AgentHandler {	
 	private final Context context;
 	private Document document = null;
 	private String queryPrefix = "";
 	
 	/**
-	 * XXX: The cache should be stored on the sd card. 
+	 * TODO: Implement more possibilities for the XPath queries to be able to handle more different FOAF files. 
 	 * 
 	 * @param _url
 	 * @param _context
@@ -42,60 +31,8 @@ public class AgentHandler implements Serializable {
 	 */
 	public AgentHandler(URL _url, Context _context) throws DocumentException {
 		this.context = _context;
-		String filename = this.saveRDFFile(_url, _context);
-		if ( filename != null ) {
-			this.document = this.reader.read(_url);
-			FileOutputStream fos;
-			try {
-				fos = _context.openFileOutput(filename, Context.MODE_PRIVATE);
-				fos.write(this.document.asXML().getBytes());
-				fos.close();
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
+		this.document = CacheHandler.getDocument(_url, _context);
 		this.setQueryPrefix();
-	}
-
-	/**
-	 * TODO: Implement here a suitable function that checks if the file was stored on the local device (SDCARD!?!)
-	 *  
-	 * @param _uri The URI that describes the FOAF file.
-	 * @param _context The context from that the files should be read.
-	 * @throws IOException 
-	 */
-	private String saveRDFFile(URL _url, Context _context) {
-		String filename = getHashcode(_url.toString()) + ".rdf";
-		try {
-			FileInputStream fis = _context.openFileInput(filename);
-			this.document = this.reader.read(fis);
-			fis.close();
-			return null;
-		} catch (Exception e) {
-			return filename;
-		}
-	}
-	
-	private static String getHashcode(String _someString) {
-		try {
-			MessageDigest algorithm = MessageDigest.getInstance("MD5");
-			algorithm.reset();
-			algorithm.update(_someString.getBytes());
-			byte[] hashArray = algorithm.digest();
-			StringBuffer hexString = new StringBuffer();
-			for (byte b : hashArray) {
-				hexString.append(Integer.toHexString(0xFF & b));
-			}
-			return hexString.toString();
-		} catch ( NoSuchAlgorithmException e){
-			String hashcode = _someString.hashCode() + "";
-			return hashcode.replace("-", "");
-		}
 	}
 	
 	/**
@@ -110,8 +47,6 @@ public class AgentHandler implements Serializable {
 			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
 		}
 	}
-	
-	
 	
 	@SuppressWarnings("unchecked")
 	private List<Element> getLinkNodes(String _query) {
@@ -160,7 +95,9 @@ public class AgentHandler implements Serializable {
 		Vector<String> knownAgents = new Vector<String>();
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
 		for (int count=0; count < knownNodes.size(); count++) {
-			knownAgents.add(knownNodes.get(count).valueOf("@resource"));
+			String friendURL = knownNodes.get(count).valueOf("@resource");
+			if ( !friendURL.equals("") )
+				knownAgents.add(friendURL);
 		}
 		return knownAgents;
 	}
@@ -170,9 +107,14 @@ public class AgentHandler implements Serializable {
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
 		for (int count=0; count < knownNodes.size(); count++) {
 			try {
-				AgentHandler friend = new AgentHandler(new URL(knownNodes.get(count).valueOf("@resource")), this.context);
-				knownAgentsName.add(friend.getName());
-			} catch (Exception e) {}
+				String friendURL = knownNodes.get(count).valueOf("@resource");
+				if ( !friendURL.equals("") ) {
+					AgentHandler friend = new AgentHandler(new URL(friendURL), this.context);
+					knownAgentsName.add(friend.getName());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		return knownAgentsName;
 	}
@@ -205,23 +147,4 @@ public class AgentHandler implements Serializable {
 		}
 		return phoneNumbers;
 	}
-	
-	/*
-	public AgentSerializable getSerializableObject() {
-		AgentSerializable agent = new AgentSerializable();
-		agent.setAgentName(this.getName());
-		agent.setDateOfBirth(this.getDateOfBirth());
-		agent.setImageURL(this.getImageURL());
-		agent.setInterests(this.getInterests());
-		Pair<Double, Double> location = this.getLocation();
-		agent.setLatitude(location.first);
-		agent.setLongitude(location.second);
-		agent.setWebsite(this.getWebsite());
-		agent.setKnownAgents(this.getKnownAgents());
-		agent.setKnownAgentsNames(this.getKnownAgentsNames());
-		agent.setPhoneNumbers(this.getPhoneNumbers());
-		agent.setEMails(this.getEMails());
-		return agent;
-	}
-	*/
 }

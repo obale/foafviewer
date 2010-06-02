@@ -57,6 +57,7 @@ public class FOAFProfile extends Activity {
 	private static final String MAIL = "E-Mail";
 	private static final String INTEREST = "Interest";
 	private static final String PHONE_NUMBER = "Phone Number";
+	private static final String KNOWN_AGENT = "Known Agent";
 	
 	private ListView list; 
 	
@@ -110,6 +111,10 @@ public class FOAFProfile extends Activity {
 				String location = entry.get(BOTTOM).replace(" ", "+");
 				mapIntent.setData(Uri.parse("geo:0,0?q=" + location));
 				startActivity(mapIntent);
+			} else if ( entry.get(TOP).equals(KNOWN_AGENT) ) {
+				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFProfile.class);
+				profileIntent.putExtra("agent", entry.get(BOTTOM));
+				startActivity(profileIntent);
 			}
 		}
 	};
@@ -117,16 +122,16 @@ public class FOAFProfile extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		final ProgressDialog progressDialog = ProgressDialog.show(FOAFProfile.this, null, "Preparing FOAF Profile...", true);
+		final ProgressDialog progressDialog = ProgressDialog.show(FOAFProfile.this, null, "Preparing FOAF Profile...", false);
 		setContentView(R.layout.profile);
 		String agentURL = getIntent().getStringExtra("agent");
 		try {
 			this.agent = new AgentHandler(new URL(agentURL), this);
-		} catch (MalformedURLException e1) {
-			e1.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
 			return;
-		} catch (DocumentException e1) {
-			e1.printStackTrace();
+		} catch (DocumentException e) {
+			e.printStackTrace();
 			return;
 		}
 			
@@ -204,6 +209,15 @@ public class FOAFProfile extends Activity {
 				 * TODO: Facebook Account
 				 */
 				
+				Vector<String> knownAgents = agent.getKnownAgents();
+				for (String knownAgent : knownAgents) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.avatar_icon + "");
+					map.put(TOP, KNOWN_AGENT);
+					map.put(BOTTOM, knownAgent);
+					profileList.add(map);
+				}
+				
 				/**
 				 * Interests
 				 */
@@ -214,12 +228,7 @@ public class FOAFProfile extends Activity {
 					map.put(TOP, INTEREST);
 					map.put(BOTTOM, interest);
 					profileList.add(map);
-					
 				}
-				
-				/**
-				 * TODO: Known Agents
-				 */
 				
 				guiHandler.post(updateProfile);
 				progressDialog.dismiss();

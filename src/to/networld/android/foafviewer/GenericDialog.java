@@ -1,4 +1,4 @@
-package to.networld.android.foafviewer.error;
+package to.networld.android.foafviewer;
 
 import to.networld.android.foafviewer.R;
 import android.app.Dialog;
@@ -14,7 +14,8 @@ import android.widget.TextView;
  * @author Alex Oberhauser
  *
  */
-public class ErrorDialog extends Dialog {
+public class GenericDialog extends Dialog {
+	private final int icon;
 	private final String errorTitle;
 	private final String errorMessage;
 	
@@ -24,8 +25,9 @@ public class ErrorDialog extends Dialog {
 		}
     };
 	
-	public ErrorDialog(Context _context, String _errorTitle, String _errorMessage) {
+	public GenericDialog(Context _context, String _errorTitle, String _errorMessage, int _icon) {
 		super(_context);
+		this.icon = _icon;
 		this.errorTitle = _errorTitle;
 		this.errorMessage = _errorMessage;
 	}
@@ -38,7 +40,7 @@ public class ErrorDialog extends Dialog {
 		TextView text = (TextView) this.findViewById(R.id.alert_msg);
 		text.setText(this.errorMessage);
 		ImageView image = (ImageView) this.findViewById(R.id.alert_image);
-		image.setImageResource(R.drawable.error_icon);
+		image.setImageResource(this.icon);
 		Button okButton = (Button)this.findViewById(R.id.alert_ok);
 		if (okButton != null)
 			okButton.setOnClickListener(this.okButtonListener);	
