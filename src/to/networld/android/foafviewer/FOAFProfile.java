@@ -2,14 +2,12 @@ package to.networld.android.foafviewer;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Vector;
 
-import org.dom4j.DocumentException;
-
+import to.networld.android.foafviewer.model.Agent;
 import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.ImageHelper;
 import android.app.Activity;
@@ -44,9 +42,9 @@ import android.widget.AdapterView.OnItemClickListener;
  *
  */
 public class FOAFProfile extends Activity {
-	private final Context context = this;
+	private final Context context = FOAFProfile.this;
 	
-	private AgentHandler agent = null;
+	private Agent agent = null;
 	
 	private static final String BOTTOM = "bottom";
 	private static final String TOP = "top";
@@ -115,7 +113,7 @@ public class FOAFProfile extends Activity {
 				startActivity(mapIntent);
 			} else if ( entry.get(TOP).equals(KNOWN_AGENT) ) {
 				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFProfile.class);
-				profileIntent.putExtra("agent", entry.get(BOTTOM));
+				profileIntent.putExtra("agent", AgentHandler.getAgent(entry.get(BOTTOM)).getURI());
 				startActivity(profileIntent);
 			} else if ( entry.get(TOP).equals(SCUBA_CERT) ) {
 				
@@ -131,13 +129,10 @@ public class FOAFProfile extends Activity {
 		setContentView(R.layout.profile);
 		String agentURL = getIntent().getStringExtra("agent");
 		try {
-			this.agent = new AgentHandler(new URL(agentURL), this);
-		} catch (MalformedURLException e) {
+			this.agent = AgentHandler.initAgent(agentURL, this);
+		} catch (Exception e) {
 			e.printStackTrace();
-			return;
-		} catch (DocumentException e) {
-			e.printStackTrace();
-			return;
+			new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon);
 		}
 			
 		this.list = (ListView) findViewById(R.id.profileList);
@@ -214,7 +209,7 @@ public class FOAFProfile extends Activity {
 				 * TODO: Facebook Account
 				 */
 				
-				Vector<String> knownAgents = agent.getKnownAgents();
+				Vector<String> knownAgents = agent.getKnownAgentsNames();
 				for (String knownAgent : knownAgents) {
 					map = new HashMap<String, String>();
 					map.put(ICON, R.drawable.avatar_icon + "");

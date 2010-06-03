@@ -10,7 +10,7 @@ import android.util.Pair;
 
 public final class HTMLProfileHandler {
 	
-	public static String getHTMLDescription(Context _context, AgentHandler _agent) {
+	public static String getHTMLDescription(Context _context, Agent _agent) {
 		Geocoder geocoder = new Geocoder(_context, Locale.getDefault());
 		StringBuffer strbuffer = new StringBuffer();
 		strbuffer.append("<center><h2><font color='blue'>");

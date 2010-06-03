@@ -2,11 +2,13 @@ package to.networld.android.foafviewer.model;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 
 import android.content.Context;
@@ -15,7 +17,7 @@ import android.content.Context;
  * Implements a caching function to be able to query the FOAF files also when
  * there is no internet connection.
  * 
- * TODO: Implement are adequate check to detect remote file changes.
+ * TODO: Implement an adequate check to detect remote file changes.
  * 
  * @author Alex Oberhauser
  *
@@ -53,8 +55,10 @@ public class CacheHandler {
 	 *  
 	 * @param _uri The URI that describes the FOAF file.
 	 * @param _context The context from that the files should be read.
+	 * @throws DocumentException 
+	 * @throws IOException 
 	 */
-	public static Document getDocument(URL _url, Context _context) {
+	public static Document getDocument(URL _url, Context _context) throws Exception {
 		SAXReader reader = new SAXReader();
 		Document document = null;
 		String filename = CacheHandler.getHashcode(_url.toString()) + ".rdf";
@@ -63,15 +67,10 @@ public class CacheHandler {
 			document = reader.read(fis);
 			fis.close();
 		} catch (Exception e) {
-			try {
-				document = reader.read(_url);
-				FileOutputStream fos;
-				fos = _context.openFileOutput(filename, Context.MODE_PRIVATE);
-				fos.write(document.asXML().getBytes());
-				fos.close();
-			} catch (Exception e1) {
-				e.printStackTrace();
-			}
+			document = reader.read(_url);
+			FileOutputStream fos = _context.openFileOutput(filename, Context.MODE_PRIVATE);
+			fos.write(document.asXML().getBytes());
+			fos.close();
 		}
 		return document;
 	}
@@ -82,10 +81,11 @@ public class CacheHandler {
 	 * @param _context The context in that the files are stored. (Object of the calling program)
 	 */
 	public static void cleaningCache(Context _context) {
+		if ( _context == null ) return;
 		String[] files = _context.fileList();
 		for (String file : files) {
 			if ( file.endsWith(".rdf") )
-				_context.deleteFile(file);
+				try { _context.deleteFile(file); } catch (Exception e) {}
 		}
 	}
 }

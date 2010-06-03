@@ -1,11 +1,8 @@
 package to.networld.android.foafviewer;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
-import org.dom4j.DocumentException;
-
+import to.networld.android.foafviewer.model.Agent;
 import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.HTMLProfileHandler;
 import android.app.ProgressDialog;
@@ -13,7 +10,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Pair;
 
 import com.google.android.maps.GeoPoint;
@@ -29,7 +25,8 @@ import com.google.android.maps.OverlayItem;
  * 
  */
 public class FOAFMap extends MapActivity {
-	private final Context context = this;
+	private final Context context = FOAFMap.this;
+	private Agent agent = null;
 
 	@Override
 	protected void onCreate(Bundle bundle) {
@@ -46,41 +43,46 @@ public class FOAFMap extends MapActivity {
 		mapView.setSatellite(false);
 		mapView.setStreetView(true);
 
+		
+		String agentURL = getIntent().getStringExtra("myFOAF");
+		try {
+			agent = AgentHandler.initAgent(agentURL, context);
+			
 		/**
 		 * Initiating the FOAF map overlay.
 		 */
 		Thread foafParser = new Thread() {
 			public void run() {
-				Looper.prepare();
-				List<Overlay> mapOverlays = mapView.getOverlays();
-				Drawable drawable = getResources().getDrawable(
-						R.drawable.foaf_map);
-				FOAFOverlay foafOverlay = new FOAFOverlay(drawable,
-						FOAFMap.this);
+					List<Overlay> mapOverlays = mapView.getOverlays();
+					Drawable drawable = getResources().getDrawable(
+							R.drawable.foaf_map);
+					FOAFOverlay foafOverlay = new FOAFOverlay(drawable,
+							FOAFMap.this);
 				
-				String agentURL = getIntent().getStringExtra("myFOAF");
-				try {
-					AgentHandler agent = new AgentHandler(new URL(agentURL), context);
-					Pair<Double, Double> gpsPoint = agent.getLocation();
-					GeoPoint geoPoint = new GeoPoint(
-							(int) (gpsPoint.first * 1E6),
-							(int) (gpsPoint.second * 1E6));
-					OverlayItem meItem = new OverlayItem(geoPoint, "FOAF Agent",
-							HTMLProfileHandler.getHTMLDescription(context, agent));
-					foafOverlay.addOverlay(meItem);
-					mapOverlays.add(foafOverlay);
-					mapView.getController().setCenter(geoPoint);
-					mapView.getController().setZoom(17);
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				} catch (DocumentException e) {
-					e.printStackTrace();
-				} finally {
-					progressDialog.dismiss();
+					try {
+						Pair<Double, Double> gpsPoint = agent.getLocation();
+						GeoPoint geoPoint = new GeoPoint(
+								(int) (gpsPoint.first * 1E6),
+								(int) (gpsPoint.second * 1E6));
+						OverlayItem meItem = new OverlayItem(geoPoint, "FOAF Agent",
+								HTMLProfileHandler.getHTMLDescription(context, agent));
+						foafOverlay.addOverlay(meItem);
+						mapOverlays.add(foafOverlay);
+						mapView.getController().setCenter(geoPoint);
+						mapView.getController().setZoom(17);
+						progressDialog.dismiss();
+					} catch (Exception e) {
+						e.printStackTrace();
+					} finally {
+						progressDialog.dismiss();
+					}
 				}
-			}
-		};
-		foafParser.start();
+			};
+			foafParser.start();
+		} catch (Exception e) {
+			progressDialog.dismiss();
+			new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon).show();
+		}
 	}
 
 	@Override

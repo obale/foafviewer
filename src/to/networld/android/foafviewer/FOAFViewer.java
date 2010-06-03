@@ -1,10 +1,10 @@
 package to.networld.android.foafviewer;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 
+import to.networld.android.foafviewer.model.Agent;
 import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.CacheHandler;
 
@@ -171,16 +171,15 @@ public class FOAFViewer extends Activity {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		String ownFOAF = settings.getString("FOAF", "");
 		if ( !ownFOAF.equals("") ) {
-			try { CacheHandler.cleaningCache(this); } catch (Exception e) {}
+			CacheHandler.cleaningCache(this);
 			try {
-				AgentHandler agent = new AgentHandler(new URL(ownFOAF), this);
+				Agent agent = AgentHandler.initAgent(ownFOAF, this);
 				Vector<String> knownAgents = agent.getKnownAgents();
 				for ( String knownAgent : knownAgents ) {
-					new AgentHandler(new URL(knownAgent), this);
+					AgentHandler.initAgent(knownAgent, this);
 				}
 				new GenericDialog(this, "Refreshing Cache Successful", "Your FOAF file and that of your friends are refreshed!", R.drawable.ok_icon).show();
 			} catch (Exception e) {
-				e.printStackTrace();
 				new GenericDialog(this, "Refreshing Cache Failed", e.getLocalizedMessage(), R.drawable.error_icon).show();
 			}
 		} else {
