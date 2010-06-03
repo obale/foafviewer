@@ -171,7 +171,7 @@ public class FOAFViewer extends Activity {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 		String ownFOAF = settings.getString("FOAF", "");
 		if ( !ownFOAF.equals("") ) {
-			CacheHandler.cleaningCache(this);
+			try { CacheHandler.cleaningCache(this); } catch (Exception e) {}
 			try {
 				AgentHandler agent = new AgentHandler(new URL(ownFOAF), this);
 				Vector<String> knownAgents = agent.getKnownAgents();

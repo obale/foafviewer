@@ -1,12 +1,17 @@
 package to.networld.android.foafviewer.model;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.jaxen.JaxenException;
+import org.jaxen.SimpleNamespaceContext;
+import org.jaxen.XPath;
+import org.jaxen.dom4j.Dom4jXPath;
 
 import android.content.Context;
 import android.util.Pair;
@@ -51,6 +56,19 @@ public class AgentHandler {
 	@SuppressWarnings("unchecked")
 	private List<Element> getLinkNodes(String _query) {
 		return (List<Element>) this.document.selectNodes(_query);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Element> getLinkNodes(String _query, HashMap<String, String> _namespaces) {
+		try {
+			XPath xpath = new Dom4jXPath(_query);
+			xpath.setNamespaceContext(new SimpleNamespaceContext(_namespaces));
+			System.out.println(_query);
+			return (List<Element>) xpath.selectNodes(this.document);
+		} catch (JaxenException e) {
+			e.printStackTrace();
+			return this.document.selectNodes("");
+		}
 	}
 
 	public String getName() {
@@ -146,5 +164,26 @@ public class AgentHandler {
 			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@resource").replaceAll("tel:", ""));
 		}
 		return phoneNumbers;
+	}
+	
+	/**
+	 * Reads out the dive certificate 
+	 * 
+	 * @return The scuba dive certificate.
+	 */
+	public String getDiveCertificate() {
+		HashMap<String, String> namespace = new HashMap<String, String>();
+		namespace.put("dive", "http://scubadive.networld.to/dive.rdf#");
+		namespace.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		namespace.put("foaf", "http://xmlns.com/foaf/0.1/");
+		List<Element> diveCertificateEle = this.getLinkNodes(this.queryPrefix + "/dive:hasCertification", namespace);
+		System.out.println(diveCertificateEle);
+		if ( diveCertificateEle.size() > 0 ) {
+			String diveCertificate = diveCertificateEle.get(0).valueOf("@resource");
+			System.out.println(diveCertificate);
+			if ( !diveCertificate.equals("") || diveCertificate != null )
+				return diveCertificate;
+		}
+		return null;
 	}
 }

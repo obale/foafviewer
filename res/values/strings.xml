@@ -4,7 +4,7 @@
     <string name="foaf_map">FOAF Visualization Map</string>
     <string name="app_name">FOAF Viewer</string>
 <string name="friend_list">List of your FOAF Friends</string>
-<string name="foaf_profile">Your FOAF Profile</string>
+<string name="foaf_profile">FOAF Profile</string>
 <string name="map_settings">Map Settings</string>
 <string name="error_dialog">Error Dialog</string>
 </resources>

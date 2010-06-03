@@ -17,6 +17,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -55,6 +56,7 @@ public class FOAFProfile extends Activity {
 	private static final String BIRTHDAY = "Date of Birth";
 	private static final String LOCATION = "Location";
 	private static final String MAIL = "E-Mail";
+	private static final String SCUBA_CERT = "Scuba Certificate";
 	private static final String INTEREST = "Interest";
 	private static final String PHONE_NUMBER = "Phone Number";
 	private static final String KNOWN_AGENT = "Known Agent";
@@ -115,6 +117,8 @@ public class FOAFProfile extends Activity {
 				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFProfile.class);
 				profileIntent.putExtra("agent", entry.get(BOTTOM));
 				startActivity(profileIntent);
+			} else if ( entry.get(TOP).equals(SCUBA_CERT) ) {
+				
 			}
 		}
 	};
@@ -122,6 +126,7 @@ public class FOAFProfile extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		final ProgressDialog progressDialog = ProgressDialog.show(FOAFProfile.this, null, "Preparing FOAF Profile...", false);
 		setContentView(R.layout.profile);
 		String agentURL = getIntent().getStringExtra("agent");
@@ -215,6 +220,18 @@ public class FOAFProfile extends Activity {
 					map.put(ICON, R.drawable.avatar_icon + "");
 					map.put(TOP, KNOWN_AGENT);
 					map.put(BOTTOM, knownAgent);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Scuba Dive Certificate
+				 */
+				String scubaCertificate = agent.getDiveCertificate();
+				if ( scubaCertificate != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.diver_icon + "");
+					map.put(TOP, SCUBA_CERT);
+					map.put(BOTTOM, scubaCertificate);
 					profileList.add(map);
 				}
 				
