@@ -40,7 +40,7 @@ public final class Agent {
 	 * @throws DocumentException
 	 * @throws IOException 
 	 */
-	public Agent(URL _url, Context _context) throws Exception {
+	protected Agent(URL _url, Context _context) throws Exception {
 		this.context = _context;
 		this.uri = _url.toString();
 		this.document = CacheHandler.getDocument(_url, _context);
@@ -96,13 +96,37 @@ public final class Agent {
 	
 	public String getDateOfBirth() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:dateOfBirth");
-		if ( nameNodes.size() == 0 ) return "";
+		if ( nameNodes.size() == 0 ) return null;
 		return nameNodes.get(0).getText();
 	}
 	
 	public String getWebsite() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:homepage");
-		if ( nameNodes.size() == 0 ) return "";
+		if ( nameNodes.size() == 0 ) return null;
+		return nameNodes.get(0).valueOf("@resource");
+	}
+	
+	public String getWeblog() {
+		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:weblog");
+		if ( nameNodes.size() == 0 ) return null;
+		return nameNodes.get(0).valueOf("@resource");
+	}
+	
+	public String getSchoolHomepage() {
+		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:schoolHomepage");
+		if ( nameNodes.size() == 0 ) return null;
+		return nameNodes.get(0).valueOf("@resource");
+	}
+	
+	public String getWorkplaceHomepage() {
+		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:workplaceHomepage");
+		if ( nameNodes.size() == 0 ) return null;
+		return nameNodes.get(0).valueOf("@resource");
+	}
+	
+	public String getOpenid() {
+		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:openid");
+		if ( nameNodes.size() == 0 ) return null;
 		return nameNodes.get(0).valueOf("@resource");
 	}
 	

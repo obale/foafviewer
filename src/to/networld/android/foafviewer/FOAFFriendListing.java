@@ -10,7 +10,9 @@ import to.networld.android.foafviewer.model.AgentHandler;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,7 +24,7 @@ import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class FOAFFriendListing extends ListActivity {
-	private final Context context = this;
+	private final Context context = FOAFFriendListing.this;
 	
 	private Agent foafAgent;
 	private HashMap<String, String> results = new HashMap<String, String>();
@@ -33,6 +35,13 @@ public class FOAFFriendListing extends ListActivity {
 		@Override
 		public void run() {
 			 updateFriendsInUI();
+		}
+	};
+	
+	private final OnDismissListener errorDialogDismissedListener = new OnDismissListener() {
+		@Override
+		public void onDismiss(DialogInterface dialog) {
+			finish();
 		}
 	};
 	
@@ -84,7 +93,9 @@ public class FOAFFriendListing extends ListActivity {
 			seeker.start();
 		} catch (Exception e) {
 			progressDialog.dismiss();
-			new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon).show();
+			GenericDialog errorDialog = new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon);
+			errorDialog.setOnDismissListener(errorDialogDismissedListener);
+			errorDialog.show();
 		}
 	}
 	

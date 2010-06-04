@@ -7,6 +7,8 @@ import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.HTMLProfileHandler;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -27,6 +29,14 @@ import com.google.android.maps.OverlayItem;
 public class FOAFMap extends MapActivity {
 	private final Context context = FOAFMap.this;
 	private Agent agent = null;
+	
+	private final OnDismissListener errorDialogDismissedListener = new OnDismissListener() {
+		@Override
+		public void onDismiss(DialogInterface dialog) {
+			finish();
+		}
+	};
+	
 
 	@Override
 	protected void onCreate(Bundle bundle) {
@@ -81,7 +91,9 @@ public class FOAFMap extends MapActivity {
 			foafParser.start();
 		} catch (Exception e) {
 			progressDialog.dismiss();
-			new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon).show();
+			GenericDialog errorDialog = new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon);
+			errorDialog.setOnDismissListener(errorDialogDismissedListener);
+			errorDialog.show();
 		}
 	}
 

@@ -49,10 +49,16 @@ public class FOAFProfile extends Activity {
 	private static final String BOTTOM = "bottom";
 	private static final String TOP = "top";
 	private static final String ICON = "icon";
+	private static final String ARROW = "nextArrow";
 	
 	private static final String NAME = "Name";
 	private static final String BIRTHDAY = "Date of Birth";
 	private static final String LOCATION = "Location";
+	private static final String PRIVATE_WEBSITE = "Private Website";
+	private static final String WEBLOG = "Weblog aka. Blog";
+	private static final String OPENID = "OpenID Account";
+	private static final String SCHOOL_HOMEPAGE = "Education Institution Website";
+	private static final String WORKPLACE_HOMEPAGE = "Workplace Website";
 	private static final String MAIL = "E-Mail";
 	private static final String SCUBA_CERT = "Scuba Certificate";
 	private static final String INTEREST = "Interest";
@@ -74,8 +80,8 @@ public class FOAFProfile extends Activity {
 
 	private void updateProfileInGUI() {
 		SimpleAdapter adapterProfileList = new SimpleAdapter(context, profileList, 
-				R.layout.list_entry, new String[]{ "icon", "top", "bottom" },
-				new int[] { R.id.icon, R.id.topText, R.id.bottomText });
+				R.layout.list_entry, new String[]{ ICON, TOP, BOTTOM, ARROW },
+				new int[] { R.id.icon, R.id.topText, R.id.bottomText, R.id.nextArrow });
 		list.setAdapter(adapterProfileList);
 	}
 	
@@ -115,8 +121,19 @@ public class FOAFProfile extends Activity {
 				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFProfile.class);
 				profileIntent.putExtra("agent", AgentHandler.getAgent(entry.get(BOTTOM)).getURI());
 				startActivity(profileIntent);
+			} else if ( entry.get(TOP).equals(INTEREST) ) {
+				/**
+				 * TODO: Call here a window (dialog!?!) that displays the interests.
+				 */
 			} else if ( entry.get(TOP).equals(SCUBA_CERT) ) {
 				
+			} else if ( entry.get(TOP).equals(PRIVATE_WEBSITE)
+					||  entry.get(TOP).equals(WEBLOG)
+					||  entry.get(TOP).equals(OPENID)
+					||  entry.get(TOP).equals(SCHOOL_HOMEPAGE)
+					||  entry.get(TOP).equals(WORKPLACE_HOMEPAGE) ) {
+				final Intent websiteIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(entry.get(BOTTOM)));
+				startActivity(websiteIntent);
 			}
 		}
 	};
@@ -155,7 +172,7 @@ public class FOAFProfile extends Activity {
 				 * Date of Birth
 				 */
 				String dateOfBirth = agent.getDateOfBirth();
-				if ( dateOfBirth != null && !dateOfBirth.equals("") ) {
+				if ( dateOfBirth != null ) {
 					map = new HashMap<String, String>();
 					map.put(ICON, R.drawable.birthday_icon + "");
 					map.put(TOP, BIRTHDAY);
@@ -176,6 +193,66 @@ public class FOAFProfile extends Activity {
 					map.put(BOTTOM, address.getAddressLine(0) + ", " + address.getPostalCode() + " " + address.getLocality());
 					profileList.add(map);
 				} catch (Exception e) {}
+				
+				/**
+				 * Private Website
+				 */
+				String website = agent.getWebsite();
+				if ( website != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.website_private_icon + "");
+					map.put(TOP, PRIVATE_WEBSITE);
+					map.put(BOTTOM, website);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Weblog
+				 */
+				String weblog = agent.getWeblog();
+				if ( weblog != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.weblog_icon + "");
+					map.put(TOP, WEBLOG);
+					map.put(BOTTOM, weblog);
+					profileList.add(map);
+				}
+				
+				/**
+				 * OpenID Account
+				 */
+				String openid = agent.getOpenid();
+				if ( openid != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.openid_icon + "");
+					map.put(TOP, OPENID);
+					map.put(BOTTOM, openid);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Education Institution Website
+				 */
+				String schoolHomepage = agent.getSchoolHomepage();
+				if ( schoolHomepage != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.learning_icon + "");
+					map.put(TOP, SCHOOL_HOMEPAGE);
+					map.put(BOTTOM, schoolHomepage);
+					profileList.add(map);
+				}
+				
+				/**
+				 * Workplace Website
+				 */
+				String workplaceHomepage = agent.getWorkplaceHomepage();
+				if ( workplaceHomepage != null ) {
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.workplace_icon + "");
+					map.put(TOP, WORKPLACE_HOMEPAGE);
+					map.put(BOTTOM, workplaceHomepage);
+					profileList.add(map);
+				}
 				
 				/**
 				 * E-Mails
@@ -209,6 +286,10 @@ public class FOAFProfile extends Activity {
 				 * TODO: Facebook Account
 				 */
 				
+				/**
+				 * Known Agents
+				 * TODO: Visualize the known Agents in a separate window.
+				 */
 				Vector<String> knownAgents = agent.getKnownAgentsNames();
 				for (String knownAgent : knownAgents) {
 					map = new HashMap<String, String>();
@@ -232,15 +313,26 @@ public class FOAFProfile extends Activity {
 				
 				/**
 				 * Interests
+				 * TODO: Visualize the interests in a separate window.
 				 */
+				map = new HashMap<String, String>();
+				map.put(ICON, R.drawable.leisure_icon + "");
+				map.put(TOP, INTEREST);
+				map.put(BOTTOM, "See the interests of this person.");
+				map.put(ARROW, R.drawable.right_arrow_icon + "");
+				profileList.add(map);
+
+				/*
 				Vector<String> interests = agent.getInterests();
 				for (String interest : interests) {
 					map = new HashMap<String, String>();
 					map.put(ICON, R.drawable.leisure_icon + "");
 					map.put(TOP, INTEREST);
 					map.put(BOTTOM, interest);
+					map.put(ARROW, R.drawable.right_arrow_icon + "");
 					profileList.add(map);
 				}
+				*/
 				
 				guiHandler.post(updateProfile);
 				progressDialog.dismiss();
