@@ -23,6 +23,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 
+/**
+ * 
+ * @author Alex Oberhauser
+ *
+ */
 public class FOAFFriendListing extends ListActivity {
 	private final Context context = FOAFFriendListing.this;
 	
@@ -68,7 +73,7 @@ public class FOAFFriendListing extends ListActivity {
 		lv.setTextFilterEnabled(true);
 		lv.setOnItemClickListener(this.listClickedListener);
 		
-		String agentURL = getIntent().getStringExtra("myFOAF");
+		String agentURL = getIntent().getStringExtra("agent");
 		try {
 			foafAgent = AgentHandler.initAgent(agentURL, context);
 			

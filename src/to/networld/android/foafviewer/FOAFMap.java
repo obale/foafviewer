@@ -24,6 +24,7 @@ import com.google.android.maps.OverlayItem;
  * The map that visualizes your FOAF file.
  * 
  * @author Alex Oberhauser
+ * @deprecated
  * 
  */
 public class FOAFMap extends MapActivity {
@@ -54,7 +55,7 @@ public class FOAFMap extends MapActivity {
 		mapView.setStreetView(true);
 
 		
-		String agentURL = getIntent().getStringExtra("myFOAF");
+		String agentURL = getIntent().getStringExtra("agent");
 		try {
 			agent = AgentHandler.initAgent(agentURL, context);
 			

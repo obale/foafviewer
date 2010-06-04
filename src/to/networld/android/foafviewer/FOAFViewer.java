@@ -39,7 +39,7 @@ public class FOAFViewer extends Activity {
 		public void onItemClick(AdapterView<?> list, View view, int position, long id) {
 			switch (position) {
 				case 0:
-					mapMe();
+					showMe();
 					break;
 				case 1:
 					listFriends();
@@ -66,10 +66,13 @@ public class FOAFViewer extends Activity {
 		ListView list = (ListView) findViewById(R.id.MAIN);
 		list.setOnItemClickListener(this.listClickListener);
 		ArrayList<HashMap<String, String>> buttonList = new ArrayList<HashMap<String, String>>();
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put("icon", R.drawable.foaf_map + "");
-		map.put("top", "Visualize You!");
-		map.put("bottom", "Shows your FOAF file on a map.");
+		HashMap<String, String> map = null;
+		
+		
+		map = new HashMap<String, String>();
+		map.put("icon", R.drawable.profile_icon + "");
+		map.put("top", "Show Profile!");
+		map.put("bottom", "Shows your FOAF file in the same style as your friends are shown.");
 		buttonList.add(map);
 		
 		map = new HashMap<String, String>();
@@ -109,16 +112,13 @@ public class FOAFViewer extends Activity {
 		menu.add(0, MENU_ABOUT, 30, "About").setIcon(R.drawable.about_icon);
 		return true;
 	}
-
-	/**
-	 * Show you on map!
-	 */
-	private void mapMe() {
+	
+	private void showMe() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
 		String ownFOAF = settings.getString("FOAF", "");
 		if ( !ownFOAF.equals("") ) {
-			Intent mapIntent = new Intent(FOAFViewer.this, FOAFMap.class);
-			mapIntent.putExtra("myFOAF", ownFOAF);
+			Intent mapIntent = new Intent(FOAFViewer.this, FOAFProfile.class);
+			mapIntent.putExtra("agent", ownFOAF);
 			this.startActivity(mapIntent);
 		} else {
 			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
@@ -133,7 +133,7 @@ public class FOAFViewer extends Activity {
 		String ownFOAF = settings.getString("FOAF", "");
 		if ( !ownFOAF.equals("") ) {
 			Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
-			friendListIntent.putExtra("myFOAF", ownFOAF);
+			friendListIntent.putExtra("agent", ownFOAF);
 			this.startActivity(friendListIntent);
 		} else {
 			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();			
@@ -142,7 +142,6 @@ public class FOAFViewer extends Activity {
 	
 	/**
 	 * Share your FOAF file with your friends or with the world.
-	 * TODO: Don't add a fix URL as fallback. Force the user to add his/her own URL.
 	 */
 	private void shareFOAFFile() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -165,7 +164,8 @@ public class FOAFViewer extends Activity {
 	}
 	
 	/**
-	 * TODO: Implement the friend list update function.
+	 * Updates the FOAF files. The deep of the update is 1. That means your FOAF file and that of your
+	 * known agents are updated.
 	 */
 	private void updateFriendList() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -176,7 +176,11 @@ public class FOAFViewer extends Activity {
 				Agent agent = AgentHandler.initAgent(ownFOAF, this);
 				Vector<String> knownAgents = agent.getKnownAgents();
 				for ( String knownAgent : knownAgents ) {
-					AgentHandler.initAgent(knownAgent, this);
+					try {
+						AgentHandler.initAgent(knownAgent, this);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 				new GenericDialog(this, "Refreshing Cache Successful", "Your FOAF file and that of your friends are refreshed!", R.drawable.ok_icon).show();
 			} catch (Exception e) {
@@ -187,6 +191,9 @@ public class FOAFViewer extends Activity {
 		}
 	}
 	
+	/**
+	 * A Dialog with the license and a short description what the program is about.
+	 */
 	private void aboutDialog() {
         WebView wv = new WebView(this);
 

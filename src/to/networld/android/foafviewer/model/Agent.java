@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.Vector;
 
 import org.dom4j.Document;
@@ -57,6 +56,10 @@ public final class Agent {
 			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
 				return;
 			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
+			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
+				return;
+		} else {
+			this.queryPrefix = "/rdf:RDF/foaf:Person";
 		}
 	}
 	
@@ -70,7 +73,6 @@ public final class Agent {
 		try {
 			XPath xpath = new Dom4jXPath(_query);
 			xpath.setNamespaceContext(new SimpleNamespaceContext(_namespaces));
-			System.out.println(_query);
 			return (List<Element>) xpath.selectNodes(this.document);
 		} catch (JaxenException e) {
 			e.printStackTrace();
@@ -80,7 +82,11 @@ public final class Agent {
 
 	public String getName() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:name");
-		if ( nameNodes.size() == 0 ) return UUID.randomUUID().toString();
+		if ( nameNodes.size() == 0 ) {
+			String firstname = this.getLinkNodes(this.queryPrefix + "/foaf:firstName").get(0).getText();
+			String surname = this.getLinkNodes(this.queryPrefix + "/foaf:surname").get(0).getText();
+			return firstname + " " + surname;
+		}
 		return nameNodes.get(0).getText();
 	}
 	
@@ -109,7 +115,9 @@ public final class Agent {
 	public String getWeblog() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:weblog");
 		if ( nameNodes.size() == 0 ) return null;
-		return nameNodes.get(0).valueOf("@resource");
+		String weblog = nameNodes.get(0).valueOf("@resource");
+		if ( weblog.equals("") ) return null;
+		return weblog;
 	}
 	
 	public String getSchoolHomepage() {
@@ -142,9 +150,19 @@ public final class Agent {
 	
 	public Vector<String> getKnownAgents() {
 		Vector<String> knownAgents = new Vector<String>();
-		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
-		for (int count=0; count < knownNodes.size(); count++) {
-			String friendURL = knownNodes.get(count).valueOf("@resource");
+		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows//rdfs:seeAlso");
+		knownAgents.addAll(this._getKnownAgents(knownNodes));
+		
+		knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
+		knownAgents.addAll(this._getKnownAgents(knownNodes));
+		
+		return knownAgents;
+	}
+	
+	private Vector<String> _getKnownAgents(List<Element> _nodes) {
+		Vector<String> knownAgents = new Vector<String>();
+		for (int count=0; count < _nodes.size(); count++) {
+			String friendURL = _nodes.get(count).valueOf("@resource");
 			if ( !friendURL.equals("") )
 				knownAgents.add(friendURL);
 		}
@@ -196,7 +214,7 @@ public final class Agent {
 		Vector<String> phoneNumbers = new Vector<String>();
 		List<Element> phoneNumberNodes = this.getLinkNodes(this.queryPrefix + "/foaf:phone");
 		for (int count=0; count < phoneNumberNodes.size(); count++) {
-			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@resource").replaceAll("tel:", ""));
+			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@resource"));
 		}
 		return phoneNumbers;
 	}

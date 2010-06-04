@@ -8,6 +8,11 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.util.Pair;
 
+/**
+ * 
+ * @author Alex Oberhauser
+ * @deprecated
+ */
 public final class HTMLProfileHandler {
 	
 	public static String getHTMLDescription(Context _context, Agent _agent) {

@@ -10,6 +10,7 @@ import java.util.Vector;
 import to.networld.android.foafviewer.model.Agent;
 import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.ImageHelper;
+import to.networld.android.foafviewer.model.ScubaDiveHelper;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -60,8 +61,8 @@ public class FOAFProfile extends Activity {
 	private static final String SCHOOL_HOMEPAGE = "Education Institution Website";
 	private static final String WORKPLACE_HOMEPAGE = "Workplace Website";
 	private static final String MAIL = "E-Mail";
-	private static final String SCUBA_CERT = "Scuba Certificate";
-	private static final String INTEREST = "Interest";
+	private static final String SCUBA_CERT = "Scuba Dive Certificate";
+	private static final String INTEREST = "Interests";
 	private static final String PHONE_NUMBER = "Phone Number";
 	private static final String KNOWN_AGENT = "Known Agent";
 	
@@ -109,8 +110,8 @@ public class FOAFProfile extends Activity {
 				} catch (IOException e) {}
 				picDialog.show();
 			} else if ( entry.get(TOP).equals(PHONE_NUMBER) ) {
-				final Intent phoneIntent = new Intent(android.content.Intent.ACTION_CALL);
-				phoneIntent.setData(Uri.parse("tel:" + entry.get(BOTTOM)));
+				final Intent phoneIntent = new Intent(android.content.Intent.ACTION_DIAL);
+				phoneIntent.setData(Uri.parse(entry.get(BOTTOM)));
 				startActivity(phoneIntent);
 			} else if ( entry.get(TOP).equals(LOCATION) ) {
 				final Intent mapIntent = new Intent(android.content.Intent.ACTION_VIEW);
@@ -118,8 +119,8 @@ public class FOAFProfile extends Activity {
 				mapIntent.setData(Uri.parse("geo:0,0?q=" + location));
 				startActivity(mapIntent);
 			} else if ( entry.get(TOP).equals(KNOWN_AGENT) ) {
-				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFProfile.class);
-				profileIntent.putExtra("agent", AgentHandler.getAgent(entry.get(BOTTOM)).getURI());
+				final Intent profileIntent = new Intent(FOAFProfile.this, FOAFFriendListing.class);
+				profileIntent.putExtra("agent", agent.getURI());
 				startActivity(profileIntent);
 			} else if ( entry.get(TOP).equals(INTEREST) ) {
 				/**
@@ -279,6 +280,19 @@ public class FOAFProfile extends Activity {
 				}
 				
 				/**
+				 * Scuba Dive Certificate
+				 */
+				String scubaCertificate = agent.getDiveCertificate();
+				if ( scubaCertificate != null ) {
+					scubaCertificate = ScubaDiveHelper.getScubaDiveCertificate(scubaCertificate);
+					map = new HashMap<String, String>();
+					map.put(ICON, R.drawable.diver_icon + "");
+					map.put(TOP, SCUBA_CERT);
+					map.put(BOTTOM, scubaCertificate);
+					profileList.add(map);
+				}
+				
+				/**
 				 * TODO: Twitter Account
 				 */
 				
@@ -288,39 +302,26 @@ public class FOAFProfile extends Activity {
 				
 				/**
 				 * Known Agents
-				 * TODO: Visualize the known Agents in a separate window.
 				 */
-				Vector<String> knownAgents = agent.getKnownAgentsNames();
-				for (String knownAgent : knownAgents) {
-					map = new HashMap<String, String>();
-					map.put(ICON, R.drawable.avatar_icon + "");
-					map.put(TOP, KNOWN_AGENT);
-					map.put(BOTTOM, knownAgent);
-					profileList.add(map);
-				}
-				
-				/**
-				 * Scuba Dive Certificate
-				 */
-				String scubaCertificate = agent.getDiveCertificate();
-				if ( scubaCertificate != null ) {
-					map = new HashMap<String, String>();
-					map.put(ICON, R.drawable.diver_icon + "");
-					map.put(TOP, SCUBA_CERT);
-					map.put(BOTTOM, scubaCertificate);
-					profileList.add(map);
-				}
+				map = new HashMap<String, String>();
+				map.put(ICON, R.drawable.avatar_icon + "");
+				map.put(TOP, KNOWN_AGENT);
+				map.put(BOTTOM, "List friends of this agent!");
+				map.put(ARROW, R.drawable.right_arrow_icon + "");
+				profileList.add(map);
 				
 				/**
 				 * Interests
 				 * TODO: Visualize the interests in a separate window.
 				 */
+				/*
 				map = new HashMap<String, String>();
 				map.put(ICON, R.drawable.leisure_icon + "");
 				map.put(TOP, INTEREST);
 				map.put(BOTTOM, "See the interests of this person.");
 				map.put(ARROW, R.drawable.right_arrow_icon + "");
 				profileList.add(map);
+				*/
 
 				/*
 				Vector<String> interests = agent.getInterests();
