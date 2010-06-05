@@ -105,13 +105,6 @@ public class FOAFViewer extends Activity {
 		
 		list.setAdapter(adapterMainList);
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SETTINGS, 20, "Settings").setIcon(R.drawable.settings_icon);
-		menu.add(0, MENU_ABOUT, 30, "About").setIcon(R.drawable.about_icon);
-		return true;
-	}
 	
 	private void showMe() {
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getBaseContext());
@@ -211,6 +204,13 @@ public class FOAFViewer extends Activity {
         dialog.show();
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_SETTINGS, 20, "Settings").setIcon(R.drawable.settings_icon);
+		menu.add(0, MENU_ABOUT, 30, "About").setIcon(R.drawable.about_icon);
+		return true;
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

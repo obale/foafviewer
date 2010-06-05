@@ -14,6 +14,7 @@ import to.networld.android.foafviewer.model.ScubaDiveHelper;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -23,7 +24,11 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Intents.Insert;
 import android.util.Pair;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -45,6 +50,8 @@ import android.widget.AdapterView.OnItemClickListener;
 public class FOAFProfile extends Activity {
 	private final Context context = FOAFProfile.this;
 	
+	private static final int MENU_ADD_CONTACT = 0x0010;
+	
 	private Agent agent = null;
 	
 	private static final String BOTTOM = "bottom";
@@ -56,7 +63,7 @@ public class FOAFProfile extends Activity {
 	private static final String BIRTHDAY = "Date of Birth";
 	private static final String LOCATION = "Location";
 	private static final String PRIVATE_WEBSITE = "Private Website";
-	private static final String WEBLOG = "Weblog aka. Blog";
+	private static final String WEBLOG = "Blog";
 	private static final String OPENID = "OpenID Account";
 	private static final String SCHOOL_HOMEPAGE = "Education Institution Website";
 	private static final String WORKPLACE_HOMEPAGE = "Workplace Website";
@@ -127,7 +134,9 @@ public class FOAFProfile extends Activity {
 				 * TODO: Call here a window (dialog!?!) that displays the interests.
 				 */
 			} else if ( entry.get(TOP).equals(SCUBA_CERT) ) {
-				
+				final Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+				searchIntent.putExtra(SearchManager.QUERY, entry.get(BOTTOM));
+				startActivity(searchIntent);
 			} else if ( entry.get(TOP).equals(PRIVATE_WEBSITE)
 					||  entry.get(TOP).equals(WEBLOG)
 					||  entry.get(TOP).equals(OPENID)
@@ -340,6 +349,60 @@ public class FOAFProfile extends Activity {
 			}
 		};
 		seeker.start();
+	}
+
+	/**
+	 * Function that handles the adding of an FOAF agent to the intern contact list.
+	 * TODO: Improve this code. Find workaround for fields that are not existent.
+	 */
+	private void addContact() {
+		Intent addPersonIntent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
+		addPersonIntent.addCategory(Intent.CATEGORY_DEFAULT);
+		addPersonIntent.setType(Contacts.CONTENT_ITEM_TYPE);
+		
+		addPersonIntent.putExtra(Insert.NAME, agent.getName());
+		
+		Vector<String> emails = agent.getEMails();
+		if ( emails.size() >= 1 )
+			addPersonIntent.putExtra(Insert.EMAIL, emails.get(0));
+		if ( emails.size() >= 2 ) 
+			addPersonIntent.putExtra(Insert.SECONDARY_EMAIL, emails.get(1));
+		if ( emails.size() >= 3 ) 
+			addPersonIntent.putExtra(Insert.TERTIARY_EMAIL, emails.get(2));
+		
+		/**
+		 * XXX: Starting from here the codes is messy and not working right ;)
+		 */
+		
+		
+		String website = agent.getWebsite();
+		if ( website != null )
+			addPersonIntent.putExtra(Insert.NOTES, website);
+		String birthday = agent.getDateOfBirth();
+		if ( birthday != null )
+			addPersonIntent.putExtra(Insert.NOTES, "testing");
+		Vector<String> phoneNumbers = agent.getPhoneNumbers();
+		addPersonIntent.putExtra(Insert.PHONE, "1234");
+		if ( phoneNumbers.size() >= 1 ) {
+			addPersonIntent.putExtra(Insert.PHONE, phoneNumbers.get(0));
+		}
+		startActivity(addPersonIntent);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_ADD_CONTACT, 20, "Add to Contacts").setIcon(R.drawable.addcontact_icon);
+		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case MENU_ADD_CONTACT:
+				this.addContact();
+				return true;
+		}
+		return false;
 	}
 
 }
