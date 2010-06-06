@@ -80,7 +80,7 @@ public final class HTMLProfileHandler {
 		}
 		strbuffer.append("</ul>");
 		strbuffer.append("<hr>");
-		
+		/*
 		Vector<String> knownAgentsName = _agent.getKnownAgentsNames();
 		strbuffer.append("<center><h3>Known Agents</h3></center>");
 		strbuffer.append("<ul>");
@@ -89,6 +89,7 @@ public final class HTMLProfileHandler {
 		}
 		strbuffer.append("</ul>");
 		strbuffer.append("<hr>");
+		*/
 		
 		return strbuffer.toString();
 	}

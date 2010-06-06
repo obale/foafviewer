@@ -7,4 +7,5 @@
 <string name="foaf_profile">FOAF Profile</string>
 <string name="map_settings">Map Settings</string>
 <string name="error_dialog">Error Dialog</string>
+<string name="version">v0.10</string>
 </resources>

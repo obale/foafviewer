@@ -9,10 +9,12 @@ import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.CacheHandler;
 
 import android.app.Activity;
-import android.app.Dialog;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -20,7 +22,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
@@ -188,19 +189,38 @@ public class FOAFViewer extends Activity {
 	 * A Dialog with the license and a short description what the program is about.
 	 */
 	private void aboutDialog() {
-        WebView wv = new WebView(this);
-
+        AlertDialog dialog = new AlertDialog.Builder(FOAFViewer.this).create();;
+        dialog.setTitle("About");
+        
+        dialog.setButton("OK", new DialogInterface.OnClickListener() {
+        	@Override
+            public void onClick(DialogInterface dialog, int which) {
+        		dialog.cancel();
+        	}
+        });
+        
+		WebView wv = new WebView(this);
+		wv.setBackgroundColor(Color.GRAY);
+		
         StringBuffer strbuffer = new StringBuffer();
+        strbuffer.append("<small><font color='white'>");
+        strbuffer.append(this.getString(R.string.app_name) + " " + this.getString(R.string.version) + "<p/>");
+        
+        strbuffer.append("<small>");
+        strbuffer.append("Please visit us at:<br/>");
+        strbuffer.append("<a href='http://networld.to'>http://networld.to</a></br>");
+        strbuffer.append("<a href='http://android.networld.to'>http://android.networld.to</a></br>");
+        strbuffer.append("<a href='http://foafviewer.android.networld.to'>http://foafviewer.android.networld.to</a><p/>");
+        
         strbuffer.append("<i>&copy; 2010 by <a href='http://devnull.networld.to/foaf.rdf#me'>Alex Oberhauser</a></i> <br/>");
         strbuffer.append("<i>licensed under the <a href='http://www.gnu.org/licenses/gpl-3.0.rdf'>GPL 3.0</a></i><p/>");
         strbuffer.append("<a href='http://foafviewer.android.networld.to'>FOAF Viewer</a> purpose is to bring the Semantic ");
         strbuffer.append("Technolgy to mobile devices. With this application your are able to visualize the XML style ");
         strbuffer.append("FOAF file in a human readable form and use the information directly with your phone");
+        strbuffer.append("</font></small>");
         wv.loadData(strbuffer.toString(), "text/html", "utf-8");
-
-        Dialog dialog = new Dialog(this);
-        dialog.setTitle("About");
-        dialog.addContentView(wv, new LinearLayout.LayoutParams(400, 400));
+        
+        dialog.setView(wv);
         dialog.show();
 	}
 

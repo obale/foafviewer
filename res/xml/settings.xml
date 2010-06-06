@@ -5,7 +5,7 @@
                 <EditTextPreference
                         android:name="FOAF"
                         android:summary="Please enter here your FOAF file that describes your person."
-                        android:defaultValue="http://devnull.networld.to/foaf.rdf"
+                        android:defaultValue="http://android.networld.to/foaf/example.rdf"
                         android:title="Personal FOAF"
                         android:key="FOAF" />
         </PreferenceCategory>

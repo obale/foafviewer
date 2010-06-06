@@ -1,13 +1,11 @@
 package to.networld.android.foafviewer.model;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.jaxen.JaxenException;
 import org.jaxen.SimpleNamespaceContext;
@@ -23,24 +21,20 @@ import android.util.Pair;
  * @author Alex Oberhauser
  *
  */
-public final class Agent {	
-	private final Context context;
-	
+public final class Agent {		
 	private final String uri;
 	
-	private Document document = null;
-	private String queryPrefix = "";
+	private final Document document;
+	private String queryPrefix = "/rdf:RDF/foaf:Person";
 	
 	/**
-	 * TODO: Implement more possibilities for the XPath queries to be able to handle more different FOAF files. 
+	 * TODO: Exception handling should be improved!!! 
 	 * 
-	 * @param _url
-	 * @param _context
-	 * @throws DocumentException
-	 * @throws IOException 
+	 * @param _url The URL that points to a valid FOAF file
+	 * @param _context The context of the activity that calls this class (needed to access the cache files).
+	 * @throws Exception Generic exception, doesn't matter what error occurs the agent could not be instantiated.
 	 */
 	protected Agent(URL _url, Context _context) throws Exception {
-		this.context = _context;
 		this.uri = _url.toString();
 		this.document = CacheHandler.getDocument(_url, _context);
 		this.setQueryPrefix();
@@ -58,8 +52,6 @@ public final class Agent {
 			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
 			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
 				return;
-		} else {
-			this.queryPrefix = "/rdf:RDF/foaf:Person";
 		}
 	}
 	
@@ -144,13 +136,16 @@ public final class Agent {
 		try {
 			lat = Double.parseDouble(this.getLinkNodes(this.queryPrefix + "//geo:lat").get(0).getText());
 			lon = Double.parseDouble(this.getLinkNodes(this.queryPrefix + "//geo:long").get(0).getText());
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return new Pair<Double, Double>(lat, lon);
 	}
 	
 	public Vector<String> getKnownAgents() {
 		Vector<String> knownAgents = new Vector<String>();
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows//rdfs:seeAlso");
+		System.out.println(this.queryPrefix + "/foaf:knows//rdfs:seeAlso -> " + knownNodes);
 		knownAgents.addAll(this._getKnownAgents(knownNodes));
 		
 		knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
@@ -169,10 +164,7 @@ public final class Agent {
 		return knownAgents;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
+	/*
 	public Vector<String> getKnownAgentsNames() {
 		Vector<String> knownAgentsName = new Vector<String>();
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
@@ -189,6 +181,7 @@ public final class Agent {
 		}
 		return knownAgentsName;
 	}
+	*/
 	
 	public Vector<String> getInterests() {
 		Vector<String> interests = new Vector<String>();
@@ -220,7 +213,7 @@ public final class Agent {
 	}
 	
 	/**
-	 * Reads out the dive certificate 
+	 * Reads out the dive certificate (see http://scubadive.networld.to for the ontology).
 	 * 
 	 * @return The scuba dive certificate.
 	 */
