@@ -145,7 +145,6 @@ public final class Agent {
 	public Vector<String> getKnownAgents() {
 		Vector<String> knownAgents = new Vector<String>();
 		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows//rdfs:seeAlso");
-		System.out.println(this.queryPrefix + "/foaf:knows//rdfs:seeAlso -> " + knownNodes);
 		knownAgents.addAll(this._getKnownAgents(knownNodes));
 		
 		knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
@@ -163,25 +162,6 @@ public final class Agent {
 		}
 		return knownAgents;
 	}
-	
-	/*
-	public Vector<String> getKnownAgentsNames() {
-		Vector<String> knownAgentsName = new Vector<String>();
-		List<Element> knownNodes = this.getLinkNodes(this.queryPrefix + "/foaf:knows");
-		for (int count=0; count < knownNodes.size(); count++) {
-			try {
-				String friendURL = knownNodes.get(count).valueOf("@resource");
-				if ( !friendURL.equals("") ) {
-					Agent friend = AgentHandler.initAgent(friendURL, this.context);
-					knownAgentsName.add(friend.getName());
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return knownAgentsName;
-	}
-	*/
 	
 	public Vector<String> getInterests() {
 		Vector<String> interests = new Vector<String>();

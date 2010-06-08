@@ -12,10 +12,12 @@ import to.networld.android.foafviewer.model.AgentHandler;
 import to.networld.android.foafviewer.model.ImageHelper;
 import to.networld.android.foafviewer.model.ScubaDiveHelper;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
@@ -130,9 +132,23 @@ public class FOAFProfile extends Activity {
 				profileIntent.putExtra("agent", agent.getURI());
 				startActivity(profileIntent);
 			} else if ( entry.get(TOP).equals(INTEREST) ) {
-				/**
-				 * TODO: Call here a window (dialog!?!) that displays the interests.
-				 */
+				Vector<String> interests = agent.getInterests();
+				final CharSequence[] items = new CharSequence[interests.size()];
+				AlertDialog.Builder builder = new AlertDialog.Builder(context);
+				builder.setTitle("Interests");
+				int count = 0;
+				for (String interest : interests) {
+					items[count] = interest;
+					count++;
+				}
+				builder.setItems(items, new DialogInterface.OnClickListener() {
+				    public void onClick(DialogInterface dialog, int item) {
+				    	String wikiURL = "http://en.wikipedia.org/wiki/" + items[item];
+						final Intent websiteIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(wikiURL));
+						startActivity(websiteIntent);
+				    }
+				});
+				builder.create().show();
 			} else if ( entry.get(TOP).equals(SCUBA_CERT) ) {
 				final Intent searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
 				searchIntent.putExtra(SearchManager.QUERY, entry.get(BOTTOM));
@@ -161,12 +177,12 @@ public class FOAFProfile extends Activity {
 			e.printStackTrace();
 			new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon);
 		}
-			
+
 		this.list = (ListView) findViewById(R.id.profileList);
 		this.list.setOnItemClickListener(listClickListener);
 		this.profileList = new ArrayList<HashMap<String, String>>();
 		
-		Thread seeker = new Thread() {
+		Thread worker = new Thread() {
 			@Override
 			public void run(){
 				/**
@@ -309,8 +325,19 @@ public class FOAFProfile extends Activity {
 				 * TODO: Facebook Account
 				 */
 				
+				
 				/**
-				 * Known Agents
+				 * Interests Link
+				 */
+				map = new HashMap<String, String>();
+				map.put(ICON, R.drawable.leisure_icon + "");
+				map.put(TOP, INTEREST);
+				map.put(BOTTOM, "See the interests of this person.");
+				map.put(ARROW, R.drawable.right_arrow_icon + "");
+				profileList.add(map);
+				
+				/**
+				 * Known Agents Link
 				 */
 				map = new HashMap<String, String>();
 				map.put(ICON, R.drawable.avatar_icon + "");
@@ -319,36 +346,11 @@ public class FOAFProfile extends Activity {
 				map.put(ARROW, R.drawable.right_arrow_icon + "");
 				profileList.add(map);
 				
-				/**
-				 * Interests
-				 * TODO: Visualize the interests in a separate window.
-				 */
-				/*
-				map = new HashMap<String, String>();
-				map.put(ICON, R.drawable.leisure_icon + "");
-				map.put(TOP, INTEREST);
-				map.put(BOTTOM, "See the interests of this person.");
-				map.put(ARROW, R.drawable.right_arrow_icon + "");
-				profileList.add(map);
-				*/
-
-				/*
-				Vector<String> interests = agent.getInterests();
-				for (String interest : interests) {
-					map = new HashMap<String, String>();
-					map.put(ICON, R.drawable.leisure_icon + "");
-					map.put(TOP, INTEREST);
-					map.put(BOTTOM, interest);
-					map.put(ARROW, R.drawable.right_arrow_icon + "");
-					profileList.add(map);
-				}
-				*/
-				
 				guiHandler.post(updateProfile);
 				progressDialog.dismiss();
 			}
 		};
-		seeker.start();
+		worker.start();
 	}
 
 	/**

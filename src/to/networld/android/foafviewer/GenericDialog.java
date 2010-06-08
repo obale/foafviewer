@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
- * XXX: Seams not to work from the profile window (inner class thread)!!!
  * 
  * @author Alex Oberhauser
  *

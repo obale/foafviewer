@@ -19,7 +19,7 @@ public final class ScubaDiveHelper {
 	 */
 	public static String getScubaDiveCertificate(String _url) {
 		if ( _url.equalsIgnoreCase("http://scubadive.networld.to/padi.rdf#None") )
-			return "No Certificate Yet";
+			return "No Certification Yet";
 		else if ( _url.equalsIgnoreCase("http://scubadive.networld.to/padi.rdf#SD") )
 			return "PADI Scuba Diver";
 		else if ( _url.equalsIgnoreCase("http://scubadive.networld.to/padi.rdf#OW") )

@@ -27,6 +27,7 @@ import android.widget.SimpleAdapter;
 import android.widget.AdapterView.OnItemClickListener;
 
 /**
+ * Main Activity with Menu.
  * 
  * @author Alex Oberhauser
  * 
@@ -67,10 +68,8 @@ public class FOAFViewer extends Activity {
 		ListView list = (ListView) findViewById(R.id.MAIN);
 		list.setOnItemClickListener(this.listClickListener);
 		ArrayList<HashMap<String, String>> buttonList = new ArrayList<HashMap<String, String>>();
-		HashMap<String, String> map = null;
 		
-		
-		map = new HashMap<String, String>();
+		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("icon", R.drawable.profile_icon + "");
 		map.put("top", "Show Profile!");
 		map.put("bottom", "Shows your FOAF file in the same style as your friends are shown.");
@@ -176,12 +175,12 @@ public class FOAFViewer extends Activity {
 						e.printStackTrace();
 					}
 				}
-				new GenericDialog(this, "Refreshing Cache Successful", "Your FOAF file and that of your friends are refreshed!", R.drawable.ok_icon).show();
+				new GenericDialog(this, "Successful!", "The cache is now up-to-date.", R.drawable.ok_icon).show();
 			} catch (Exception e) {
-				new GenericDialog(this, "Refreshing Cache Failed", e.getLocalizedMessage(), R.drawable.error_icon).show();
+				new GenericDialog(this, "Refreshing Cache Failed!", e.getLocalizedMessage(), R.drawable.error_icon).show();
 			}
 		} else {
-			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
+			new GenericDialog(this, "Missing FOAF file!", "Please set your FOAF file!", R.drawable.error_icon).show();
 		}
 	}
 	
