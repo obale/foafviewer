@@ -44,15 +44,12 @@ public class FOAFViewer extends Activity {
 					showMe();
 					break;
 				case 1:
-					listFriends();
-					break;
-				case 2:
 					shareFOAFFile();
 					break;
-				case 3:
+				case 2:
 					generateFOAFFile();
 					break;
-				case 4:
+				case 3:
 					updateFriendList();
 					break;
 			}
@@ -73,12 +70,6 @@ public class FOAFViewer extends Activity {
 		map.put("icon", R.drawable.profile_icon + "");
 		map.put("top", "Show Profile!");
 		map.put("bottom", "Shows your FOAF file in the same style as your friends are shown.");
-		buttonList.add(map);
-		
-		map = new HashMap<String, String>();
-		map.put("icon", R.drawable.avatar_icon + "");
-		map.put("top", "List Friends!");
-		map.put("bottom", "List all your known agents.");
 		buttonList.add(map);
 		
 		map = new HashMap<String, String>();
@@ -115,21 +106,6 @@ public class FOAFViewer extends Activity {
 			this.startActivity(mapIntent);
 		} else {
 			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();
-		}
-	}
-	
-	/**
-	 * List your friends.
-	 */
-	private void listFriends() {
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-		String ownFOAF = settings.getString("FOAF", "");
-		if ( !ownFOAF.equals("") ) {
-			Intent friendListIntent = new Intent(FOAFViewer.this, FOAFFriendListing.class);
-			friendListIntent.putExtra("agent", ownFOAF);
-			this.startActivity(friendListIntent);
-		} else {
-			new GenericDialog(this, "Missing FOAF file", "Please set your FOAF file!", R.drawable.error_icon).show();			
 		}
 	}
 	

@@ -118,6 +118,19 @@ public class FOAFProfile extends Activity {
 				} catch (MalformedURLException e) {
 				} catch (IOException e) {}
 				picDialog.show();
+			} else if ( entry.get(TOP).equals(BIRTHDAY) ) {
+				/*
+				ContentValues event = new ContentValues();
+				event.put("title", "Birthday of " + agent.getName());
+				event.put("dtstart", DateHelper.convertStringToLong(agent.getDateOfBirth()));
+				event.put("allDay", 1); 
+				event.put("eventStatus", 1);
+				Uri eventsUri = Uri.parse("content://calendar/events");
+				getContentResolver().insert(eventsUri, event);
+				*/
+				/**
+				 * TODO: Here comes a notification that the birthday was added.
+				 */
 			} else if ( entry.get(TOP).equals(PHONE_NUMBER) ) {
 				final Intent phoneIntent = new Intent(android.content.Intent.ACTION_DIAL);
 				phoneIntent.setData(Uri.parse(entry.get(BOTTOM)));
@@ -360,7 +373,7 @@ public class FOAFProfile extends Activity {
 	private void addContact() {
 		Intent addPersonIntent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
 		addPersonIntent.addCategory(Intent.CATEGORY_DEFAULT);
-		addPersonIntent.setType(Contacts.CONTENT_ITEM_TYPE);
+		addPersonIntent.setType(Contacts.CONTENT_VCARD_TYPE);
 		
 		addPersonIntent.putExtra(Insert.NAME, agent.getName());
 		
@@ -384,9 +397,8 @@ public class FOAFProfile extends Activity {
 		if ( birthday != null )
 			addPersonIntent.putExtra(Insert.NOTES, "testing");
 		Vector<String> phoneNumbers = agent.getPhoneNumbers();
-		addPersonIntent.putExtra(Insert.PHONE, "1234");
-		if ( phoneNumbers.size() >= 1 ) {
-			addPersonIntent.putExtra(Insert.PHONE, phoneNumbers.get(0));
+		for ( String number : phoneNumbers ) {
+			addPersonIntent.putExtra(Insert.PHONE, number);
 		}
 		startActivity(addPersonIntent);
 	}
