@@ -46,10 +46,10 @@ public final class Agent {
 	private void setQueryPrefix() {
 		List<Element> nameNodes = this.getLinkNodes("/rdf:RDF/foaf:PersonalProfileDocument/foaf:primaryTopic");
 		if (nameNodes.size() > 0) {
-			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource") + "']";
+			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@rdf:resource") + "']";
 			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
 				return;
-			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@resource").replace("#", "") + "']";
+			this.queryPrefix = "/rdf:RDF/foaf:Person[@*='" + nameNodes.get(0).valueOf("@rdf:resource").replace("#", "") + "']";
 			if ( this.getLinkNodes(this.queryPrefix).size() > 0 )
 				return;
 		}
@@ -85,10 +85,10 @@ public final class Agent {
 	public String getImageURL() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:img");
 		if ( nameNodes.size() > 0 )
-			return nameNodes.get(0).valueOf("@resource");
+			return nameNodes.get(0).valueOf("@rdf:resource");
 		nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:depiction");
 		if  (nameNodes.size() > 0)
-			return nameNodes.get(0).valueOf("@resource");
+			return nameNodes.get(0).valueOf("@rdf:resource");
 		return "";
 	}
 	
@@ -101,7 +101,7 @@ public final class Agent {
 	public String getWebsite() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:homepage");
 		if ( nameNodes.size() == 0 ) return null;
-		return nameNodes.get(0).valueOf("@resource");
+		return nameNodes.get(0).valueOf("@rdf:resource");
 	}
 	
 	public String getWeblog() {
@@ -115,19 +115,19 @@ public final class Agent {
 	public String getSchoolHomepage() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:schoolHomepage");
 		if ( nameNodes.size() == 0 ) return null;
-		return nameNodes.get(0).valueOf("@resource");
+		return nameNodes.get(0).valueOf("@rdf:resource");
 	}
 	
 	public String getWorkplaceHomepage() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:workplaceHomepage");
 		if ( nameNodes.size() == 0 ) return null;
-		return nameNodes.get(0).valueOf("@resource");
+		return nameNodes.get(0).valueOf("@rdf:resource");
 	}
 	
 	public String getOpenid() {
 		List<Element> nameNodes = this.getLinkNodes(this.queryPrefix + "/foaf:openid");
 		if ( nameNodes.size() == 0 ) return null;
-		return nameNodes.get(0).valueOf("@resource");
+		return nameNodes.get(0).valueOf("@rdf:resource");
 	}
 	
 	public Pair<Double, Double> getLocation() {
@@ -156,7 +156,7 @@ public final class Agent {
 	private Vector<String> _getKnownAgents(List<Element> _nodes) {
 		Vector<String> knownAgents = new Vector<String>();
 		for (int count=0; count < _nodes.size(); count++) {
-			String friendURL = _nodes.get(count).valueOf("@resource");
+			String friendURL = _nodes.get(count).valueOf("@rdf:resource");
 			if ( !friendURL.equals("") )
 				knownAgents.add(friendURL);
 		}
@@ -167,7 +167,7 @@ public final class Agent {
 		Vector<String> interests = new Vector<String>();
 		List<Element> interestsNodes = this.getLinkNodes(this.queryPrefix + "/foaf:interest");
 		for (int count=0; count < interestsNodes.size(); count++) {
-			interests.add(interestsNodes.get(count).valueOf("@label"));
+			interests.add(interestsNodes.get(count).valueOf("@rdfs:label"));
 		}
 		return interests;
 	}
@@ -176,7 +176,7 @@ public final class Agent {
 		Vector<String> eMails = new Vector<String>();
 		List<Element> eMailNodes = this.getLinkNodes(this.queryPrefix + "/foaf:mbox");
 		for (int count=0; count < eMailNodes.size(); count++) {
-			String mail = eMailNodes.get(count).valueOf("@resource").replaceAll("mailto:", "");
+			String mail = eMailNodes.get(count).valueOf("@rdf:resource").replaceAll("mailto:", "");
 			if ( !mail.equals("") )
 				eMails.add(mail);
 		}
@@ -187,7 +187,7 @@ public final class Agent {
 		Vector<String> phoneNumbers = new Vector<String>();
 		List<Element> phoneNumberNodes = this.getLinkNodes(this.queryPrefix + "/foaf:phone");
 		for (int count=0; count < phoneNumberNodes.size(); count++) {
-			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@resource"));
+			phoneNumbers.add(phoneNumberNodes.get(count).valueOf("@rdf:resource"));
 		}
 		return phoneNumbers;
 	}
@@ -204,7 +204,7 @@ public final class Agent {
 		namespace.put("foaf", "http://xmlns.com/foaf/0.1/");
 		List<Element> diveCertificateEle = this.getLinkNodes(this.queryPrefix + "/dive:hasCertification", namespace);
 		if ( diveCertificateEle.size() > 0 ) {
-			String diveCertificate = diveCertificateEle.get(0).valueOf("@resource");
+			String diveCertificate = diveCertificateEle.get(0).valueOf("@rdf:resource");
 			if ( !diveCertificate.equals("") || diveCertificate != null )
 				return diveCertificate;
 		}

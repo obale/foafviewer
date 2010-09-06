@@ -26,70 +26,76 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * 
  * @author Alex Oberhauser
- *
+ * 
  */
 public class FOAFFriendListing extends ListActivity {
 	private final Context context = FOAFFriendListing.this;
-	
+
 	private Agent foafAgent;
 	private HashMap<String, String> results = new HashMap<String, String>();
 	private ArrayAdapter<String> friendListAdapter = null;
-	
+
 	private final Handler guiHandler = new Handler();
 	private final Runnable updateFriends = new Runnable() {
 		@Override
 		public void run() {
-			 updateFriendsInUI();
+			updateFriendsInUI();
 		}
 	};
-	
+
 	private final OnDismissListener errorDialogDismissedListener = new OnDismissListener() {
 		@Override
 		public void onDismiss(DialogInterface dialog) {
 			finish();
 		}
 	};
-	
+
 	private final OnItemClickListener listClickedListener = new OnItemClickListener() {
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		public void onItemClick(AdapterView<?> parent, View view, int position,
+				long id) {
 			CharSequence agentName = ((TextView) view).getText();
 			String friendFoafURL = results.get(agentName);
-			Intent profileIntent = new Intent(FOAFFriendListing.this, FOAFProfile.class);
+			Intent profileIntent = new Intent(FOAFFriendListing.this,
+					FOAFProfile.class);
 			profileIntent.putExtra("agent", friendFoafURL);
 			startActivity(profileIntent);
 		}
 	};
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		final ProgressDialog progressDialog = ProgressDialog.show(FOAFFriendListing.this, null, "Searching for Friends...", true);
-		
-		this.friendListAdapter = new ArrayAdapter<String>(this, R.layout.friendlist, R.id.friend_list);
+		final ProgressDialog progressDialog = ProgressDialog.show(
+				FOAFFriendListing.this, null, "Searching for Friends...", true);
+
+		this.friendListAdapter = new ArrayAdapter<String>(this,
+				R.layout.friendlist, R.id.friend_list);
 		this.setListAdapter(this.friendListAdapter);
 		ListView lv = this.getListView();
 		lv.setTextFilterEnabled(true);
 		lv.setOnItemClickListener(this.listClickedListener);
-		
+
 		String agentURL = getIntent().getStringExtra("agent");
 		try {
 			foafAgent = AgentHandler.initAgent(agentURL, context);
-			
+
 			Thread seeker = new Thread() {
 				@Override
-				public void run(){			
-					Iterator<String> iter = foafAgent.getKnownAgents().iterator();
+				public void run() {
+					Iterator<String> iter = foafAgent.getKnownAgents()
+							.iterator();
 					Agent entry = null;
-					while ( iter.hasNext() ) {
+					while (iter.hasNext()) {
 						try {
 							String friendURL = iter.next();
 							entry = AgentHandler.initAgent(friendURL, context);
-							synchronized(results) {
+							synchronized (results) {
 								results.put(entry.getName(), friendURL);
 							}
-						} catch (Exception e) {}
+						} catch (Exception e) {
+						}
 					}
 					guiHandler.post(updateFriends);
 					progressDialog.dismiss();
@@ -98,16 +104,17 @@ public class FOAFFriendListing extends ListActivity {
 			seeker.start();
 		} catch (Exception e) {
 			progressDialog.dismiss();
-			GenericDialog errorDialog = new GenericDialog(context, "Error", e.getLocalizedMessage(), R.drawable.error_icon);
+			GenericDialog errorDialog = new GenericDialog(context, "Error", e
+					.getLocalizedMessage(), R.drawable.error_icon);
 			errorDialog.setOnDismissListener(errorDialogDismissedListener);
 			errorDialog.show();
 		}
 	}
-	
+
 	private void updateFriendsInUI() {
-		if ( this.results != null) {
+		if (this.results != null) {
 			Set<String> friendNames = this.results.keySet();
-			for ( String name : friendNames ) {
+			for (String name : friendNames) {
 				this.friendListAdapter.add(name);
 			}
 		}
