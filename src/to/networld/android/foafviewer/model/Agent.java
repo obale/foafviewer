@@ -68,7 +68,7 @@ public final class Agent {
 			return (List<Element>) xpath.selectNodes(this.document);
 		} catch (JaxenException e) {
 			e.printStackTrace();
-			return this.document.selectNodes("");
+			return (List<Element>)this.document.selectNodes("");
 		}
 	}
 
