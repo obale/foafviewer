@@ -1,4 +1,8 @@
-= Android FOAFViewer
+= Android FoafViewer
+
+FOAF Viewer purpose is to bring the Semantic Technolgy to mobile devices. With
+this application your are able to visualize the XML style FOAF file in a human
+readable form and use the information directly with your phone.
 
 
 == License
@@ -6,9 +10,10 @@
 (c) 2010 - 2012 by Alex Oberhauser for {Networld}[http://networld.to],
 published under MIT license.
 
+
 == Warranty
 
 This software is provided "as is" and without any express or implied
-warranties, including, without limitation, the implied warranties of 
+warranties, including, without limitation, the implied warranties of
 merchantibility and fitness for a particular purpose.
 
